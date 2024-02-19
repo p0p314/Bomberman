@@ -5,7 +5,9 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <thread>
-#include "src/game/elements/personnage/Personnage.hpp"
-
+#include "game/Graphics/Graphics.h"
+#include "game/carte/Carte.cpp"
+#include "game/menu/MainMenu.h"
+#include "game/elements/personnage/Personnage.hpp"
 
 #endif //BOMBERMAN_MAIN_H
