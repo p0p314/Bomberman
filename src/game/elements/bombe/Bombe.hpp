@@ -12,24 +12,57 @@ class Personnage; //! forward declaration, évite problème d'inclusion
 class Bombe : public Element
 {
 private :
+
+    Personnage & proprietaire;
+    sf::Sprite spriteFlammes; 
+
+    bool visible = false; 
+    bool flammeVisible = false;
+    
+    int loadBombe(std::string);
+    int loadFlammes();
+    
     int degats = 1;
     int porteAttaque = 1;
     int delaiExplosion = 3; //TODO utiliser heure depart, heure fin pour calcul    
-    Personnage & proprietaire;
-    sf::Texture textureFlamme;
-    sf::Sprite spriteFlamme; 
-    sf::VertexArray flammes(sf::Sprite, int);
-    sf::Texture textureBombe;
-    sf::Sprite sprtieBombe; 
+    
+    sf::Texture textureFlammeCenter;
+    sf::Texture textureFlammeUp;
+    sf::Texture textureFlammeRight;
+    sf::Texture textureFlammeDown;
+    sf::Texture textureFlammeLeft;
+
+    sf::Sprite spriteFlammeCenter;
+    sf::Sprite spriteFlammeUp;
+    sf::Sprite spriteFlammeRight;
+    sf::Sprite spriteFlammeDown;
+    sf::Sprite spriteFlammeLeft;
+ 
+    sf::Vector2i anim;
     
 public : 
-    Bombe() = delete ; 
+
     Bombe( Personnage& proprietaire);
-    void poser(sf::RenderWindow &window);
-   // void Bombe::exploser(sf::RenderWindow &window);
+    Bombe() = delete ; 
+    
+    void poser();
+    void exploser(int,int,int,int);
+    
     void ajoutPowerUp(); //TODO: ajouter un powerup en param
-    int loadSpriteFlammes(std::string);
-    int loadBombe(std::string);
+
+    bool est_visible() const;
+    bool est_visibleFlammes();
+    void toggleVisibilite(bool);
+    void toggleVisibiliteFlammes(bool);
+
+    sf::Vector2i& getAnim();
+    
+    sf::Sprite& getSPriteBombe() ;
+    sf::Sprite& getSpriteFlammeCenter();
+    sf::Sprite& getSpriteFlammeUp(); 
+    sf::Sprite& getSpriteFlammeRight(); 
+    sf::Sprite& getSpriteFlammeDown(); 
+    sf::Sprite& getSpriteFlammeLeft();
 
 };
 

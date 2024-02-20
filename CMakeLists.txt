@@ -10,9 +10,12 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(Bomberman main.cpp 
-                         src/Graphics/Graphics.cpp 
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+add_executable(Bomberman src/main.cpp 
+                         src/game/Graphics/Graphics.cpp 
                          src/game/elements/element.cpp
+                         src/game/carte/Carte.cpp
                          src/game/elements/personnage/Personnage.cpp
                          src/game/elements/bombe/Bombe.cpp
                          )
