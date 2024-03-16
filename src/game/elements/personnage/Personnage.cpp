@@ -24,3 +24,21 @@ Bombe& Personnage::getBombe()
     return bombe;
 }
 
+void Personnage::mourir(sf::RenderWindow& window)
+{
+    if(estVivant)
+    {
+        viesRestantes--;
+        estVivant = false;
+    }
+}
+
+bool Personnage::vivant()
+{
+    return estVivant;
+}
+
+void Personnage::resurection()
+{
+    estVivant = true;
+}

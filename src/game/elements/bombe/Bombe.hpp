@@ -1,14 +1,11 @@
-//
-// Created by raximex on 28/01/24.
-//
-
 #ifndef BOMBERMAN_BOMBE_H
 #define BOMBERMAN_BOMBE_H
 
 #include "../element.hpp"
-#include <thread>
-class Personnage; //! forward declaration, évite problème d'inclusion
 
+
+class Personnage; //! forward declaration, évite problème d'inclusion
+class Monde;
 class Bombe : public Element
 {
 private :
@@ -18,10 +15,10 @@ private :
 
     bool visible = false; 
     bool flammeVisible = false;
-    
+ 
+
     int loadBombe(std::string);
     int loadFlammes();
-    
     int degats = 1;
     int porteAttaque = 1;
     int delaiExplosion = 3; //TODO utiliser heure depart, heure fin pour calcul    
@@ -45,8 +42,9 @@ public :
     Bombe( Personnage& proprietaire);
     Bombe() = delete ; 
     
-    void poser();
+    bool poser(Monde);
     void exploser(int,int,int,int);
+    bool flammesContains(Personnage perso);
     
     void ajoutPowerUp(); //TODO: ajouter un powerup en param
 

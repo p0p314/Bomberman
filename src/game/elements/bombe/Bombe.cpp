@@ -51,16 +51,40 @@ int Bombe::loadFlammes(){
 
     return 1;
 }
-void Bombe::poser()
+bool Bombe::poser(Monde monde)
 {
-    sprite.setPosition((int)proprietaire.getPosition().x, (int)proprietaire.getPosition().y); //TODO: Il faut ensuite set l'objet sur la carte pour qu'il y reste
-    spriteFlammeCenter.setPosition((int)proprietaire.getPosition().x, (int)proprietaire.getPosition().y);
-    spriteFlammeUp.setPosition((int)proprietaire.getPosition().x, (int)proprietaire.getPosition().y-35);
-    spriteFlammeRight.setPosition((int)proprietaire.getPosition().x+35, (int)proprietaire.getPosition().y);
-    spriteFlammeDown.setPosition((int)proprietaire.getPosition().x, (int)proprietaire.getPosition().y+35);
-    spriteFlammeLeft.setPosition((int)proprietaire.getPosition().x-35, (int)proprietaire.getPosition().y);
+    for(int i = 0; i < monde.gridLength ; i++){
+        for(int j = 0; j < monde.gridLength; j++)
+            if(monde.tiles[i][j]->getSprite().getGlobalBounds().contains(
+                        proprietaire.getPosition().x + proprietaire.getSprite().getGlobalBounds().width/2,
+                        proprietaire.getPosition().y + proprietaire.getSprite().getGlobalBounds().height) && monde.tiles[i][j]->isFree){
+
+                sprite.setPosition(monde.tiles[i][j]->getSprite().getPosition().x ,
+                                   monde.tiles[i][j]->getSprite().getPosition().y  ); //!: Les position sont bizarre, a vérifier si changement de la taille du sprite de bombe
+
+                spriteFlammeCenter.setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y);
+                spriteFlammeUp.setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y-35);
+                spriteFlammeRight.setPosition((int)sprite.getPosition().x+35, (int)sprite.getPosition().y);
+                spriteFlammeDown.setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y+35);
+                spriteFlammeLeft.setPosition((int)sprite.getPosition().x-35, (int)sprite.getPosition().y);
+
+                return true;
+            }
+    }
+    return false;
 }
 
+bool Bombe::flammesContains(Personnage elm) 
+{
+    sf::Vector2f position{elm.getPosition().x + elm.getTexture().getSize().x/2 , elm.getPosition().y + elm.getTexture().getSize().y/2};
+    if(spriteFlammeCenter.getGlobalBounds().contains(position) ||
+        spriteFlammeUp.getGlobalBounds().contains(position) ||
+        spriteFlammeRight.getGlobalBounds().contains(position) ||
+        spriteFlammeDown.getGlobalBounds().contains(position) ||
+        spriteFlammeLeft.getGlobalBounds().contains(position) ) return true;
+    else return false;
+    
+}
 
 
 sf::Sprite& Bombe::getSPriteBombe(){

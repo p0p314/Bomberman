@@ -18,6 +18,7 @@ class Element
     void setPosition(sf::Vector2f nouvellePosition);
     void deplacer(sf::Vector2f nouvellePosition);
 
+    bool containElm(Element elm);
 
     sf::Sprite&  getSprite();
     sf::Texture& getTexture();
