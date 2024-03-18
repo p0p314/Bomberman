@@ -5,25 +5,34 @@
 #include "TileMap.h"
 #include <vector>
 #include "../elements/bombe/Bombe.hpp"
+#include "../elements/personnage/Personnage.hpp"
+
 #include <SFML/Graphics.hpp>
 
-
+class Personnage;
 class Monde
 {
+ private:   
     sf::Texture mur, grass, caisse, brick;
-    sf::Vector2i playerPos;
-    // sf::Vector2i enemyPos;
+    int gridLength;
+    
     void setUpInitialState();
-    // void setUpEnemyPositions();
     void setUpTiles();
+    
+    std::vector<std::pair<Personnage*,Bombe*>> _bombList;
+    std::vector<std::vector<TileMap *>> tiles;
 
 public:
-    bool isColision(Element elm);
-    void isDestruction(Bombe bombe);
-
-    std::vector<std::vector<TileMap *>> tiles;
-    int gridLength;
     Monde();
+    void initialisation();
+
+    bool isColision(Personnage* elm);
+    void isDestruction(Bombe bombe); 
+
+    int getGridLength();
+
+    std::vector<std::vector<TileMap*>>& getTiles();
+    std::vector<std::pair<Personnage*,Bombe*>>& getBombList();
 };
 
 #endif

@@ -1,17 +1,17 @@
 #include "TileMap.h"
 #include <iostream>
 
-TileMap::TileMap(sf::Texture texture, float x, float y, bool passable, bool destructible)
+TileMap::TileMap(sf::Texture texture, float posX, float posY, bool passable, bool destructible)
 {
     textureTile = texture;
     if (!setUpSprite())
     {
         return;
     }
-    pos = sf::Vector2f(x, y);
+    pos = sf::Vector2f(posX, posY);
     spriteTile.setPosition(pos);
-    isFree = passable;
-    isDestructible = destructible;
+    _traversable = passable;
+    _destructible = destructible;
 }
 
 bool TileMap::setUpSprite()
@@ -22,14 +22,27 @@ bool TileMap::setUpSprite()
     return true;
 }
 
+bool TileMap::isDestructible()
+{
+    return _destructible;
+}
 
+void TileMap::setDestructible(bool destructible)
+{
+    _destructible = destructible;
+}
 
+bool TileMap::isTraversable()
+{
+    return _traversable;
+}
+
+void TileMap::setTraversable(bool traversable)
+{
+    _traversable = traversable;
+}
 sf::Sprite &TileMap::getSprite()
 {
     return spriteTile;
 }
 
-bool TileMap::getFree()
-{
-    return isFree;
-}

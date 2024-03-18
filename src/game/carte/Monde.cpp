@@ -3,28 +3,43 @@
 #include <SFML/Graphics.hpp>
 
 Monde::Monde()
+{}
+
+void Monde::initialisation()
 {
     gridLength = 12;
     setUpInitialState();
 }
-
 void Monde::setUpInitialState()
 {
-    playerPos = sf::Vector2i(gridLength - 1, gridLength - 1);
     setUpTiles();
 }
 
-bool Monde::isColision(Element elm)
+int Monde::getGridLength()
+{
+    return gridLength;
+}
+
+std::vector<std::vector<TileMap*>>& Monde::getTiles() {
+    return tiles;
+}
+
+std::vector<std::pair<Personnage*,Bombe*>> & Monde::getBombList()
+{
+    return _bombList;
+}
+
+bool Monde::isColision(Personnage* elm)
 {
     for (int i = 0; i < gridLength; i++)
     {
         for (int j = 0; j < gridLength; j++)
         {
-            sf::FloatRect zoneCapture(sf::Rect<float>(elm.getPosition().x,
-                                                      elm.getPosition().y + elm.getSprite().getGlobalBounds().height - 15,
-                                                      elm.getSprite().getGlobalBounds().width,
+            sf::FloatRect zoneCapture(sf::Rect<float>(elm->getPosition().x,
+                                                      elm->getPosition().y + elm->getSprite().getGlobalBounds().height - 15,
+                                                      elm->getSprite().getGlobalBounds().width,
                                                       15));
-            if (tiles[i][j]->getSprite().getGlobalBounds().intersects(zoneCapture) && !tiles[i][j]->isFree)
+            if (tiles[i][j]->getSprite().getGlobalBounds().intersects(zoneCapture) && !tiles[i][j]->isTraversable())
             {
                 return true;
             }
@@ -39,27 +54,29 @@ void Monde::isDestruction(Bombe bombe)
     {
         for (int j = 0; j < gridLength; j++)
         {
-            if ((tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeCenter().getGlobalBounds()) ||
-                 tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeDown().getGlobalBounds()) ||
+            if ((tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeDown().getGlobalBounds()) ||
                  tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeLeft().getGlobalBounds()) ||
                  tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeUp().getGlobalBounds()) ||
                  tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeRight().getGlobalBounds())) &&
-                tiles[i][j]->isDestructible)
+                 tiles[i][j]->isDestructible())
             {
+                std::cout << "\t tiles detruite -> x = "<< i << ", j = " <<j  << std::endl;
                 tiles[i][j]->getSprite().setTexture(grass);
-                tiles[i][j]->isFree = true;
+                tiles[i][j]->setTraversable(true);
+                tiles[i][j]->setDestructible(false);
             }
         }
     }
+
 }
 
 void Monde::setUpTiles()
 {
     tiles.clear();
 
-    mur.loadFromFile("assets/mur.png");
-    grass.loadFromFile("assets/grass.png");
-    caisse.loadFromFile("assets/terrain.png");
+    mur.loadFromFile("assets/mur.png");         //Faire une class/structure ? pour chaque composant
+    grass.loadFromFile("assets/grass.png");     //Destructible ? traversable ? directement dans le type 
+    caisse.loadFromFile("assets/terrain.png");  // de la tile
     brick.loadFromFile("assets/brick.png");
 
     std::vector<TileMap *> firstRow;
@@ -84,7 +101,7 @@ void Monde::setUpTiles()
     secondRow.push_back(new TileMap(grass, 150, 50, true, false));
     secondRow.push_back(new TileMap(grass, 200, 50, true, false));
     secondRow.push_back(new TileMap(brick, 250, 50, false, false));
-    secondRow.push_back(new TileMap(grass, 300, 50, true, false));
+    secondRow.push_back(new TileMap(caisse, 300, 50, false, true));
     secondRow.push_back(new TileMap(grass, 350, 50, true, false));
     secondRow.push_back(new TileMap(brick, 400, 50, false, false));
     secondRow.push_back(new TileMap(grass, 450, 50, false, false));
@@ -100,7 +117,7 @@ void Monde::setUpTiles()
     thirdRow.push_back(new TileMap(caisse, 200, 100, false, true));
     thirdRow.push_back(new TileMap(brick, 250, 100, false, false));
     thirdRow.push_back(new TileMap(caisse, 300, 100, false, true));
-    thirdRow.push_back(new TileMap(caisse, 350, 100, false, true));
+    thirdRow.push_back(new TileMap(grass, 350, 100, true, true));
     thirdRow.push_back(new TileMap(caisse, 400, 100, false, true));
     thirdRow.push_back(new TileMap(brick, 450, 100, false, false));
     thirdRow.push_back(new TileMap(grass, 500, 100, true, false));
@@ -115,7 +132,7 @@ void Monde::setUpTiles()
     fourthRow.push_back(new TileMap(brick, 150, 150, false, false));
     fourthRow.push_back(new TileMap(grass, 200, 150, true, false));
     fourthRow.push_back(new TileMap(grass, 250, 150, true, false));
-    fourthRow.push_back(new TileMap(grass, 300, 150, true, false));
+    fourthRow.push_back(new TileMap(caisse, 300, 150, false, true));
     fourthRow.push_back(new TileMap(grass, 350, 150, true, false));
     fourthRow.push_back(new TileMap(brick, 400, 150, false, false));
     fourthRow.push_back(new TileMap(grass, 450, 150, true, false));

@@ -6,17 +6,19 @@
 
 class Personnage; //! forward declaration, évite problème d'inclusion
 class Monde;
-class Bombe : public Element
+class Bombe : public Element, public sf::Drawable
 {
 private :
 
     Personnage & proprietaire;
     sf::Sprite spriteFlammes; 
 
-    bool visible = false; 
-    bool flammeVisible = false;
- 
-
+    bool _visibleBomb = false,
+         _visibleFire = false,
+         _exploded = false;
+    
+    int _posFireSpriteAnimation = 1;
+    float _elapsedTime = 0;
     int loadBombe(std::string);
     int loadFlammes();
     int degats = 1;
@@ -37,21 +39,21 @@ private :
  
     sf::Vector2i anim;
     
+
+    sf::Clock timer;
 public : 
 
     Bombe( Personnage& proprietaire);
     Bombe() = delete ; 
     
-    bool poser(Monde);
+    bool poser(Monde *);
     void exploser(int,int,int,int);
     bool flammesContains(Personnage perso);
     
     void ajoutPowerUp(); //TODO: ajouter un powerup en param
 
-    bool est_visible() const;
-    bool est_visibleFlammes();
-    void toggleVisibilite(bool);
-    void toggleVisibiliteFlammes(bool);
+    void setVisibility(bool);
+    void setFireVisibility(bool);
 
     sf::Vector2i& getAnim();
     
@@ -61,6 +63,14 @@ public :
     sf::Sprite& getSpriteFlammeRight(); 
     sf::Sprite& getSpriteFlammeDown(); 
     sf::Sprite& getSpriteFlammeLeft();
+
+    bool isFireVisible();
+
+    bool getIsExploded();
+    void setExploded(bool explose);
+    bool isVisible();
+    void Update(float dt);
+    virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
 
 };
 

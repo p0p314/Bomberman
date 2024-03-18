@@ -18,17 +18,60 @@ Bombe::Bombe( Personnage& proprietaire) : proprietaire(proprietaire)
     }
     destructible = false;
     traversable = true;
-       
+    timer.restart();
 }
 
 int Bombe::loadBombe(std::string lien){
     texture.loadFromFile(lien);
     sprite.setTexture(texture);
     sprite.setTextureRect(sf::IntRect(74,53,14,16));
+    sprite.setScale(sf::Vector2f(3.0f,3.0f));
     return 1;
 }
 
+void Bombe::Update(float dt)
+{
+    _elapsedTime += dt;
+   // std::cout << "\t bombe -> visibilite : "<< _visibleBomb << std::endl;
+   // std::cout << "\t bombe -> temps ecoule : "<< _elapsedTime << std::endl;
 
+    //!Gerer animation bombe
+    if(_visibleBomb && _elapsedTime >= 3.0f && _posFireSpriteAnimation != 2){
+        setFireVisibility(true);
+       // std::cout << "\t flammes visible"  << std::endl;
+        _posFireSpriteAnimation++;
+        spriteFlammeCenter.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+        spriteFlammeUp.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+        spriteFlammeRight.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+        spriteFlammeDown.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+        spriteFlammeLeft.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+    }
+
+    if(_visibleFire && _elapsedTime >= 5.0f){
+       // std::cout << "\t Bombe explosée : invisible"  << std::endl;
+        setVisibility(false);
+        setFireVisibility(false);
+        setExploded(true);
+        _elapsedTime = 0;
+        _posFireSpriteAnimation = 1;
+    }
+}
+
+void Bombe::draw(sf::RenderTarget & target, sf::RenderStates states)  const 
+{
+    if(_visibleFire){
+        target.draw(spriteFlammeCenter);
+        target.draw(spriteFlammeUp);
+        target.draw(spriteFlammeRight);
+        target.draw(spriteFlammeDown);
+        target.draw(spriteFlammeLeft);
+    } else target.draw(sprite);
+
+}
+bool Bombe::isFireVisible()
+{
+    return _visibleFire;
+}
 int Bombe::loadFlammes(){
     textureFlammeCenter.loadFromFile("assets/explosion_center.png");
     textureFlammeUp.loadFromFile("assets/explosion_up.png");
@@ -43,24 +86,27 @@ int Bombe::loadFlammes(){
     spriteFlammeLeft.setTexture(textureFlammeLeft);
 
 
-    spriteFlammeCenter.setTextureRect(sf::IntRect(0,0,35,35));
-    spriteFlammeUp.setTextureRect(sf::IntRect(0,0,35,35));
-    spriteFlammeRight.setTextureRect(sf::IntRect(0,0,35,35));
-    spriteFlammeDown.setTextureRect(sf::IntRect(0,0,35,35));
-    spriteFlammeLeft.setTextureRect(sf::IntRect(0,0,35,35));
+    spriteFlammeCenter.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+    spriteFlammeUp.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+    spriteFlammeRight.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+    spriteFlammeDown.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
+    spriteFlammeLeft.setTextureRect(sf::IntRect(_posFireSpriteAnimation * 35,0,35,35));
 
     return 1;
 }
-bool Bombe::poser(Monde monde)
-{
-    for(int i = 0; i < monde.gridLength ; i++){
-        for(int j = 0; j < monde.gridLength; j++)
-            if(monde.tiles[i][j]->getSprite().getGlobalBounds().contains(
-                        proprietaire.getPosition().x + proprietaire.getSprite().getGlobalBounds().width/2,
-                        proprietaire.getPosition().y + proprietaire.getSprite().getGlobalBounds().height) && monde.tiles[i][j]->isFree){
 
-                sprite.setPosition(monde.tiles[i][j]->getSprite().getPosition().x ,
-                                   monde.tiles[i][j]->getSprite().getPosition().y  ); //!: Les position sont bizarre, a vérifier si changement de la taille du sprite de bombe
+bool Bombe::poser(Monde * monde)
+{   
+    std::vector<std::vector<TileMap*>>& tiles = monde->getTiles();
+
+    for(int i = 0; i < monde->getGridLength() ; i++){
+        for(int j = 0; j < monde->getGridLength(); j++)
+            if(tiles[i][j]->getSprite().getGlobalBounds().contains(
+                        proprietaire.getPosition().x + proprietaire.getSprite().getGlobalBounds().width/2,
+                        proprietaire.getPosition().y + proprietaire.getSprite().getGlobalBounds().height) && tiles[i][j]->isTraversable()){
+
+                sprite.setPosition(tiles[i][j]->getSprite().getPosition().x ,
+                                   tiles[i][j]->getSprite().getPosition().y  ); //!: Les position sont bizarre, a vérifier si changement de la taille du sprite de bombe
 
                 spriteFlammeCenter.setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y);
                 spriteFlammeUp.setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y-35);
@@ -71,6 +117,7 @@ bool Bombe::poser(Monde monde)
                 return true;
             }
     }
+    timer.restart();
     return false;
 }
 
@@ -86,7 +133,15 @@ bool Bombe::flammesContains(Personnage elm)
     
 }
 
+bool Bombe::getIsExploded()
+{
+    return _exploded;
+}
 
+void Bombe::setExploded(bool state)
+{
+    _exploded = state;
+}
 sf::Sprite& Bombe::getSPriteBombe(){
     return sprite;
 }
@@ -115,19 +170,17 @@ sf::Sprite& Bombe::getSpriteFlammeLeft(){
 }
 void Bombe::exploser(int up, int left, int down, int right){}
 
-bool Bombe::est_visible() const{
-    return visible;
-}
 
-bool Bombe::est_visibleFlammes(){
-    return flammeVisible;
+bool Bombe::isVisible()
+{
+    return _visibleBomb;
 }
-
-void Bombe::toggleVisibilite(bool etat){
-    visible = etat;
+void Bombe::setVisibility(bool state){
+    timer.restart();
+    _visibleBomb = state;
 }
-void Bombe::toggleVisibiliteFlammes(bool etat){
-    flammeVisible = etat;
+void Bombe::setFireVisibility(bool state){
+    _visibleFire = state;
 }
 sf::Vector2i& Bombe::getAnim(){
     return anim;
