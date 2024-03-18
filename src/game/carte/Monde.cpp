@@ -54,12 +54,14 @@ void Monde::isDestruction(Bombe bombe)
     {
         for (int j = 0; j < gridLength; j++)
         {
-            if ((tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeDown().getGlobalBounds()) ||
+            for(sf::Sprite ray : bombe.getRays())
+                if(tiles[i][j]->getSprite().getGlobalBounds().intersects(ray.getGlobalBounds()) && tiles[i][j]->isDestructible()){
+            /*if ((tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeDown().getGlobalBounds()) ||
                  tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeLeft().getGlobalBounds()) ||
                  tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeUp().getGlobalBounds()) ||
                  tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeRight().getGlobalBounds())) &&
                  tiles[i][j]->isDestructible())
-            {
+            {*/
                 std::cout << "\t tiles detruite -> x = "<< i << ", j = " <<j  << std::endl;
                 tiles[i][j]->getSprite().setTexture(grass);
                 tiles[i][j]->setTraversable(true);

@@ -24,50 +24,55 @@ class Personnage : public Element, public sf::Drawable
 {
 private : 
 
+    Monde * _level;
+    apparence skin; 
+    Bombe  _bomb;       
+    
+    std::string nom;
+    
+    enum Dir{Up, Right, Down, Left};
+    
     int _spriteWidth = 16,
         _spriteHeight = 24;
 
-    Monde * _level;
-    std::string nom;
-    apparence skin; 
     int _speed = 2;
+    bool _moving = false;
     bool _bombInHand = true;
 
     float _elapsedTime = 0.f,
           _elaspsedTimeDeath = 0.f, 
-	      _timeToChangeFrame = 0.03f;
+	      _timeToChangeFrame = 0.2f;
 
-    int quantiteBombe = 2;
-    int bouclier = 0;
-    int viesRestantes = 3;
     bool _alive = true;
     bool _dying = false;
-    Bombe  _bomb;       //! Faire un pointeur si probleme affichage
+
     int _posSpriteDeathAnimation = 1;
-    sf::Texture textureAtlas;
-    sf::Sprite _deathSprite;
-public : 
-    enum Dir{Up, Right, Down, Left};
     sf::Vector2i _posSpriteAnimation;
+    
+    sf::Texture _textureAtlas;
+    sf::Sprite _deathSprite;
+
+    int quantiteBombe = 2,
+        bouclier = 0,
+        viesRestantes = 3;
+
+public : 
+   
     Personnage() = delete;
     Personnage(Monde *monde, apparence apparence); //TODO: définir init pos au chargement de la map
+    
     Bombe & getBombe();
-    int getAnimMort();
-    void mourir(float dt);
-    bool vivant();
-    bool isDying();
-    void demarrerMort();
-    void resurection();
-
-    sf::Sprite& getSpriteMort();
+    
+    void startDeath();
+    void dying(float dt);
+    void respawn();
+   
 
 
-    void actions(sf::Event);
-    int getNumberBombLeft();
-    bool isBombInHand();
-    void bombCollied();
+    void actions(sf::Event, bool allowingMovement);
 
     void Update(float dt);
+    
     virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
 };
 

@@ -19,7 +19,7 @@ int Partie::Run()
         if(_characterList.size() > 1)
             allowingMovement = true;
 
-        HandleEvents(event,allowingMovement);
+        HandleEvents(event,true); //! Mettre variable allowingMovement
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);
         clock.restart();
@@ -35,7 +35,7 @@ void Partie::HandleEvents(sf::Event event,bool alLowingMovement)
         
             if(event.type == sf::Event::Closed) _exit = true ;
             for(Personnage * charchater : _characterList) //!Ajouter l'autorisation de mouvement
-                charchater->actions(event);
+                charchater->actions(event, alLowingMovement);
     }
 }
 
