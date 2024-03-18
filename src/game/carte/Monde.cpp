@@ -8,6 +8,10 @@ Monde::Monde()
 void Monde::initialisation()
 {
     gridLength = 12;
+    mur.loadFromFile("assets/mur.png");         //Faire une class/structure ? pour chaque composant
+    grass.loadFromFile("assets/grass.png");     //Destructible ? traversable ? directement dans le type 
+    caisse.loadFromFile("assets/terrain.png");  // de la tile
+    brick.loadFromFile("assets/brick.png");
     setUpInitialState();
 }
 void Monde::setUpInitialState()
@@ -32,43 +36,28 @@ std::vector<std::pair<Personnage*,Bombe*>> & Monde::getBombList()
 bool Monde::isColision(Personnage* elm)
 {
     for (int i = 0; i < gridLength; i++)
-    {
-        for (int j = 0; j < gridLength; j++)
-        {
-            sf::FloatRect zoneCapture(sf::Rect<float>(elm->getPosition().x,
-                                                      elm->getPosition().y + elm->getSprite().getGlobalBounds().height - 15,
-                                                      elm->getSprite().getGlobalBounds().width,
-                                                      15));
-            if (tiles[i][j]->getSprite().getGlobalBounds().intersects(zoneCapture) && !tiles[i][j]->isTraversable())
-            {
+        for (int j = 0; j < gridLength; j++){
+            elm->updateCollisionZone();
+            if (tiles[i][j]->intersects(elm->getCollisionZone()) && !tiles[i][j]->isTraversable()) 
                 return true;
-            }
         }
-    }
+
     return false;
 }
 
-void Monde::isDestruction(Bombe bombe)
+void Monde::isDestroyed(Bombe bombe)
 {
     for (int i = 0; i < gridLength; i++)
-    {
         for (int j = 0; j < gridLength; j++)
-        {
             for(sf::Sprite ray : bombe.getRays())
-                if(tiles[i][j]->getSprite().getGlobalBounds().intersects(ray.getGlobalBounds()) && tiles[i][j]->isDestructible()){
-            /*if ((tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeDown().getGlobalBounds()) ||
-                 tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeLeft().getGlobalBounds()) ||
-                 tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeUp().getGlobalBounds()) ||
-                 tiles[i][j]->getSprite().getGlobalBounds().intersects(bombe.getSpriteFlammeRight().getGlobalBounds())) &&
-                 tiles[i][j]->isDestructible())
-            {*/
-                std::cout << "\t tiles detruite -> x = "<< i << ", j = " <<j  << std::endl;
-                tiles[i][j]->getSprite().setTexture(grass);
-                tiles[i][j]->setTraversable(true);
-                tiles[i][j]->setDestructible(false);
+                if(tiles[i][j]->intersects(ray) && tiles[i][j]->isDestructible()){
+                    std::cout << "\t tiles detruite -> x = "<< i << ", j = " <<j  << std::endl;
+                    tiles[i][j]->getSprite().setTexture(grass);
+                    tiles[i][j]->setTraversable(true);
+                    tiles[i][j]->setDestructible(false);
             }
-        }
-    }
+        
+    
 
 }
 
@@ -76,10 +65,7 @@ void Monde::setUpTiles()
 {
     tiles.clear();
 
-    mur.loadFromFile("assets/mur.png");         //Faire une class/structure ? pour chaque composant
-    grass.loadFromFile("assets/grass.png");     //Destructible ? traversable ? directement dans le type 
-    caisse.loadFromFile("assets/terrain.png");  // de la tile
-    brick.loadFromFile("assets/brick.png");
+    
 
     std::vector<TileMap *> firstRow;
     firstRow.push_back(new TileMap(mur, 0, 0, false, false));

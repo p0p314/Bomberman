@@ -27,7 +27,7 @@ public:
     void initialisation();
 
     bool isColision(Personnage* elm);
-    void isDestruction(Bombe bombe); 
+    void isDestroyed(Bombe bombe); 
 
     int getGridLength();
 

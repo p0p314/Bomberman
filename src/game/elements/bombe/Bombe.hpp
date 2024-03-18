@@ -11,6 +11,7 @@ class Bombe : public Element, public sf::Drawable
 private :
 
     Personnage & _owner;
+    Monde * _level;
 
     bool _visibleBomb = false,
          _visibleFire = false,
@@ -34,18 +35,6 @@ private :
 
     sf::Texture _fireTexture;
     std::vector<sf::Sprite> _fireRays;
-
-    sf::Texture textureFlammeCenter;
-    sf::Texture textureFlammeUp;
-    sf::Texture textureFlammeRight;
-    sf::Texture textureFlammeDown;
-    sf::Texture textureFlammeLeft;
-
-    sf::Sprite spriteFlammeCenter;
-    sf::Sprite spriteFlammeUp;
-    sf::Sprite spriteFlammeRight;
-    sf::Sprite spriteFlammeDown;
-    sf::Sprite spriteFlammeLeft;
  
 private : 
     int loadBomb(std::string);
@@ -57,7 +46,7 @@ public :
 
     Bombe( Personnage& proprietaire);
     Bombe() = delete ; 
-    
+    void setLevel(Monde *);
     bool plant(Monde *);
 
     void setVisibility(bool);
@@ -66,19 +55,14 @@ public :
 
     bool isVisible();
     bool isFireVisible();
-    bool getIsExploded();
+    bool isExploded();
     
-    bool flammesContains(Personnage perso);
-    
+    bool rayContains(Personnage);
+    bool rayExpansion(sf::Sprite) const;
+
     //void ajoutPowerUp(); //TODO: ajouter un powerup en param
 
     std::vector<sf::Sprite> getRays();
-    sf::Sprite& getSPriteBombe() ;
-    sf::Sprite& getSpriteFlammeCenter();
-    sf::Sprite& getSpriteFlammeUp(); 
-    sf::Sprite& getSpriteFlammeRight(); 
-    sf::Sprite& getSpriteFlammeDown(); 
-    sf::Sprite& getSpriteFlammeLeft();
 
 
   

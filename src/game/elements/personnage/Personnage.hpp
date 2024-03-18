@@ -52,6 +52,7 @@ private :
     sf::Texture _textureAtlas;
     sf::Sprite _deathSprite;
 
+    sf::FloatRect _collisionZone;
     int quantiteBombe = 2,
         bouclier = 0,
         viesRestantes = 3;
@@ -67,8 +68,8 @@ public :
     void dying(float dt);
     void respawn();
    
-
-
+    sf::FloatRect getCollisionZone();
+    void updateCollisionZone();
     void actions(sf::Event, bool allowingMovement);
 
     void Update(float dt);

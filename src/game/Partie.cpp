@@ -13,6 +13,7 @@ int Partie::Run()
 
     sf::Event event;
     sf::Clock clock;
+    
     bool allowingMovement = false;
 
     while(!_exit){

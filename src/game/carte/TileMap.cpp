@@ -46,3 +46,21 @@ sf::Sprite &TileMap::getSprite()
     return spriteTile;
 }
 
+bool TileMap::containsCharacter(Element  elm)
+{
+    return getSprite().getGlobalBounds().contains( 
+        elm.getPosition().x + elm.getSprite().getGlobalBounds().width/2,
+        elm.getPosition().y + elm.getSprite().getGlobalBounds().height);
+   
+}
+
+bool TileMap::intersects(sf::Sprite elm)
+{
+    return getSprite().getGlobalBounds().intersects(elm.getGlobalBounds());
+}
+
+
+bool TileMap::intersects(sf::FloatRect rect)
+{
+    return getSprite().getGlobalBounds().intersects(rect);
+}
