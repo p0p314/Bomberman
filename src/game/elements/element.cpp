@@ -9,31 +9,31 @@ Element::Element(){
 
 void Element::setPosition(int x, int y)
 {
-    sprite.setPosition(x,y);
+    _sprite.setPosition(x,y);
     
 }
 
 void Element::setPosition(sf::Vector2f nouvellePosition)
 {
-    sprite.setPosition(nouvellePosition);
+    _sprite.setPosition(nouvellePosition);
   
 }
 
 void Element::deplacer(sf::Vector2f position)
 {
-    sprite.move(position);
+    _sprite.move(position);
     
 }
 
 
 sf::Vector2f Element::getPosition(){
-    return sprite.getPosition();
+    return _sprite.getPosition();
 }
 
 sf::Sprite& Element::getSprite() {
-    return sprite;
+    return _sprite;
 }
 
 sf::Texture& Element::getTexture(){
-    return texture;
+    return _texture;
 }

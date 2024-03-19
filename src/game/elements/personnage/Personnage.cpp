@@ -9,11 +9,11 @@ Personnage::Personnage(Monde* level,apparence apparence) : skin(apparence), _bom
 {
     _level = level;
     if(skin == apparence::titi){
-        if(!texture.loadFromFile("assets/bomber.png")) perror("texture bomber 'titi'");
-        sprite.setTexture(texture);
-        sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
+        if(!_texture.loadFromFile("assets/bomber.png")) perror("texture bomber 'titi'");
+        _sprite.setTexture(_texture);
+        _sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
                                               _spriteWidth,_spriteHeight));
-        sprite.setScale(sf::Vector2f(2.f,2.f));
+        _sprite.setScale(sf::Vector2f(2.f,2.f));
         nom = titi;
     } 
 
@@ -26,9 +26,6 @@ Personnage::Personnage(Monde* level,apparence apparence) : skin(apparence), _bom
     setPosition(tiles[1][1]->getSprite().getPosition().x ,
                 tiles[1][1]->getSprite().getPosition().y  ); 
     
-
-    destructible = true;
-    traversable = false;
 
 
   
@@ -46,19 +43,25 @@ void Personnage::updateCollisionZone()
                                getSprite().getGlobalBounds().width,
                                15);
 }
+
 Bombe& Personnage::getBombe()
 {
     return _bomb;
 }
 
+void Personnage::updateAnimation()
+{
+    _sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
+                                          _spriteWidth,_spriteHeight));
+}
 void Personnage::dying(float dt)
 {
 
     if(_dying)
     {
         _alive = false;
-        sprite.setTexture(_textureAtlas);
-        sprite.setTextureRect(sf::IntRect(_posSpriteDeathAnimation*29,0,29,25));
+        _sprite.setTexture(_textureAtlas);
+        _sprite.setTextureRect(sf::IntRect(_posSpriteDeathAnimation*29,0,29,25));
         if(dt < 1 ) _posSpriteDeathAnimation = 1;
         else if(_posSpriteDeathAnimation <=4) _posSpriteDeathAnimation++; 
         if(_posSpriteDeathAnimation == 5) _dying = false;
@@ -66,8 +69,6 @@ void Personnage::dying(float dt)
 
    
 }
-
-
 
 void Personnage::respawn()
 {
@@ -77,7 +78,7 @@ void Personnage::respawn()
     getSprite().setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,
                                             _posSpriteAnimation.y* _spriteHeight,
                                             _spriteWidth,_spriteHeight));
-    sprite.setTexture(texture);
+    _sprite.setTexture(_texture);
 }
 
 void Personnage::startDeath()
@@ -86,13 +87,9 @@ void Personnage::startDeath()
     _dying = true;
 }
 
-
-
-
-
 void Personnage::actions(sf::Event event, bool allowingMovement)
 {    
-    if(allowingMovement){
+    if(allowingMovement && !_dying){
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ||
             sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
             sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
@@ -103,25 +100,25 @@ void Personnage::actions(sf::Event event, bool allowingMovement)
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){
             _posSpriteAnimation.y = Up; 
-            sprite.move(0,-_speed);
+            _sprite.move(0,-_speed);
             if(_level->isColision(this))
-                sprite.move(0,_speed);    
+                _sprite.move(0,_speed);    
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){ 
             _posSpriteAnimation.y = Right; 
-            sprite.move(_speed,0);
+            _sprite.move(_speed,0);
             if(_level->isColision(this)) 
                 getSprite().move(-_speed,0);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){ 
             _posSpriteAnimation.y = Down; 
-            sprite.move(0,_speed);
+            _sprite.move(0,_speed);
             if(_level->isColision(this)) 
                 getSprite().move(0,-_speed);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){ 
             _posSpriteAnimation.y = Left; 
-            sprite.move(-_speed,0);
+            _sprite.move(-_speed,0);
             if(_level->isColision(this)) 
                 getSprite().move(_speed,0);
         }   
@@ -142,15 +139,17 @@ void Personnage::Update(float dt)
     _elaspsedTimeDeath += dt;
 
     //!Gestion animation de déplacement
-    if(_elapsedTime > _timeToChangeFrame && _moving)
+    if(_elapsedTime > _timeToChangeFrame)
     {
-        _posSpriteAnimation.x--;
-        if(_posSpriteAnimation.x * _spriteWidth >= getTexture().getSize().x)
-            _posSpriteAnimation.x = 2;
+        if(_moving){
+                _posSpriteAnimation.x--;
+            if(_posSpriteAnimation.x * _spriteWidth >= getTexture().getSize().x)
+                _posSpriteAnimation.x = 2;
+
+            _elapsedTime = 0.f;
+        } else  _posSpriteAnimation.x = 0;
         
-        sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
-                                          _spriteWidth,_spriteHeight));
-        _elapsedTime = 0.f;
+        updateAnimation();
     } 
 
     //!Gestion bombe      
@@ -176,7 +175,7 @@ void Personnage::Update(float dt)
 
     //! Gestion mort du personnage
     for(std::pair bomb :_level->getBombList() )
-        if(bomb.second->isFireVisible() && bomb.second->rayContains(*this) && _alive)
+        if(bomb.second->isFireVisible() && bomb.second->fireContains(*this) && _alive)
         {
             startDeath();
             _elaspsedTimeDeath = 0;
@@ -203,6 +202,6 @@ void Personnage::draw(sf::RenderTarget & target, sf::RenderStates states) const
     if(!_bombInHand)
         target.draw(_bomb);
     
-    if(_alive || _dying)target.draw(sprite);
+    if(_alive || _dying)target.draw(_sprite);
     
 }

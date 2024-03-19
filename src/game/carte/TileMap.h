@@ -12,7 +12,6 @@ class TileMap
         sf::Vector2f pos;
         sf::Texture textureTile;
         sf::Sprite spriteTile;
-
     public:
         TileMap(sf::Texture texture, float posX, float posY, bool passable, bool destructible);
         

@@ -2,7 +2,7 @@
 #define BOMBERMAN_BOMBE_H
 
 #include "../element.hpp"
-
+#include "Ray.h"
 
 class Personnage; //! forward declaration, évite problème d'inclusion
 class Monde;
@@ -11,7 +11,6 @@ class Bombe : public Element, public sf::Drawable
 private :
 
     Personnage & _owner;
-    Monde * _level;
 
     bool _visibleBomb = false,
          _visibleFire = false,
@@ -31,11 +30,10 @@ private :
     int degats = 1,
         porteAttaque = 1;
     
-    enum rayOrientation{Up, Right, Down, Left};
 
     sf::Texture _fireTexture;
     std::vector<sf::Sprite> _fireRays;
- 
+    std::vector<Ray*> _fire_Rays;
 private : 
     int loadBomb(std::string);
     int loadFire();
@@ -46,7 +44,6 @@ public :
 
     Bombe( Personnage& proprietaire);
     Bombe() = delete ; 
-    void setLevel(Monde *);
     bool plant(Monde *);
 
     void setVisibility(bool);
@@ -57,13 +54,13 @@ public :
     bool isFireVisible();
     bool isExploded();
     
-    bool rayContains(Personnage);
-    bool rayExpansion(sf::Sprite) const;
+    bool fireContains(Personnage);
+    bool fireExpansion(sf::Sprite) const;
 
     //void ajoutPowerUp(); //TODO: ajouter un powerup en param
 
     std::vector<sf::Sprite> getRays();
-
+    std::vector<Ray*> get_Rays();
 
   
     void Update(float dt);

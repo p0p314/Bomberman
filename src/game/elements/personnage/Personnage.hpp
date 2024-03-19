@@ -73,7 +73,7 @@ public :
     void actions(sf::Event, bool allowingMovement);
 
     void Update(float dt);
-    
+    void updateAnimation();
     virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
 };
 

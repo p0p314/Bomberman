@@ -6,22 +6,20 @@
 class Element 
 {
     protected : 
-    bool destructible, traversable;
-    sf::Texture texture;
-    sf::Sprite sprite; 
+        sf::Texture _texture;
+        sf::Sprite _sprite; 
     
     public : 
-    Element() ; 
-
-    sf::Vector2f getPosition();
-    void setPosition(int x, int y );
-    void setPosition(sf::Vector2f nouvellePosition);
-    void deplacer(sf::Vector2f nouvellePosition);
-
-    bool containElm(Element elm);
-
-    sf::Sprite&  getSprite();
-    sf::Texture& getTexture();
+        Element() ; 
+    
+        sf::Vector2f getPosition();
+        void setPosition(int x, int y );
+        void setPosition(sf::Vector2f nouvellePosition);
+        void deplacer(sf::Vector2f nouvellePosition);
+    
+    
+        sf::Sprite&  getSprite();
+        sf::Texture& getTexture();
     
 
 };

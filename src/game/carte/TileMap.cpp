@@ -22,6 +22,7 @@ bool TileMap::setUpSprite()
     return true;
 }
 
+
 bool TileMap::isDestructible()
 {
     return _destructible;

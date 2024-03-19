@@ -13,14 +13,14 @@ class Personnage;
 class Monde
 {
  private:   
-    sf::Texture mur, grass, caisse, brick;
+    sf::Texture _wall, _grass, _box, _brick;
     int gridLength;
     
     void setUpInitialState();
     void setUpTiles();
-    
+
     std::vector<std::pair<Personnage*,Bombe*>> _bombList;
-    std::vector<std::vector<TileMap *>> tiles;
+    std::vector<std::vector<TileMap *>> _tiles;
 
 public:
     Monde();
@@ -28,6 +28,7 @@ public:
 
     bool isColision(Personnage* elm);
     void isDestroyed(Bombe bombe); 
+    void destroy(sf::Texture newTexture ,int posI, int posJ);
 
     int getGridLength();
 

@@ -16,24 +16,25 @@ Bombe::Bombe( Personnage& proprietaire) : _owner(proprietaire)
     if(!loadFire()){
         perror("chargement sprite flammes");
     }
-    destructible = false;
-    traversable = true;
+
 }
 
 int Bombe::loadBomb(std::string lien){
-    texture.loadFromFile(lien);
-    sprite.setTexture(texture);
-    sprite.setTextureRect(sf::IntRect(74,53,14,16));
-    sprite.setScale(sf::Vector2f(3.0f,3.0f));
+    _texture.loadFromFile(lien);
+    _sprite.setTexture(_texture);
+    _sprite.setTextureRect(sf::IntRect(74,53,14,16));
+    _sprite.setScale(sf::Vector2f(3.0f,3.0f));
     return 1;
 }
 
-void Bombe::setLevel(Monde * level)
-{
-    _level = level;
-}
+
 std::vector<sf::Sprite> Bombe::getRays(){
     return _fireRays;
+}
+
+std::vector<Ray*> Bombe::get_Rays()
+{
+    return _fire_Rays;
 }
 void Bombe::Update(float dt)
 {
@@ -49,11 +50,13 @@ void Bombe::Update(float dt)
         if(_posFireSpriteAnimation <4 && _elapsedTimeFireAnim >= _timeToChangeFrame){
 
             _posFireSpriteAnimation++;
-            for(int i =0; i < 5; i++)
-                _fireRays.at(i).setTextureRect(sf::IntRect(_posFireSpriteAnimation * _fireSpriteWidth,
+            for(Ray * ray : _fire_Rays)
+                ray->updateRect(_posFireSpriteAnimation);
+                /*_fireRays.at(i).setTextureRect(sf::IntRect(_posFireSpriteAnimation * _fireSpriteWidth,
                                                            i*_fireSpriteHeight,
                                                            _fireSpriteWidth,
                                                            _fireSpriteHeight));
+                */
             _elapsedTimeFireAnim = 0.f;
         }
 
@@ -73,11 +76,10 @@ void Bombe::Update(float dt)
 void Bombe::draw(sf::RenderTarget & target, sf::RenderStates states)  const 
 {
     if(_visibleFire){
-        for(sf::Sprite ray : _fireRays)
-           // if(rayExpansion(ray))
-                target.draw(ray);
+        for(Ray * ray : _fire_Rays)
+            if(ray->getVisibility()) target.draw(ray->getSprite());
 
-    } else target.draw(sprite);
+    } else target.draw(_sprite);
 
 }
 
@@ -88,12 +90,12 @@ bool Bombe::isFireVisible()
 
 int Bombe::loadFire(){   
     _fireTexture.loadFromFile("assets/fire_all.png");
+
+    Ray::orientation orientations[] = { Ray::center, Ray::up, Ray::right, Ray::down, Ray::left };
     for(int i = 0; i < 5; i++){
-        _fireRays.push_back(sf::Sprite(_fireTexture,
-                           sf::IntRect(_posFireSpriteAnimation * _fireSpriteWidth,
-                                        i * _fireSpriteHeight,
-                                        _fireSpriteWidth,
-                                        _fireSpriteHeight)));
+        Ray * ray = new Ray(_fireTexture, orientations[i]);
+        _fire_Rays.push_back(ray);
+
     }
     return 1;
 }
@@ -106,48 +108,30 @@ bool Bombe::plant(Monde * monde)
         for(int j = 0; j < monde->getGridLength(); j++)
             if(tiles[i][j]->containsCharacter(_owner) && tiles[i][j]->isTraversable()){
 
-                sprite.setPosition(tiles[i][j]->getSprite().getPosition().x ,
+                _sprite.setPosition(tiles[i][j]->getSprite().getPosition().x ,
                                    tiles[i][j]->getSprite().getPosition().y  ); //!: Les position sont bizarre, a vérifier si changement de la taille du sprite de bombe
-
-              
-                _fireRays.at(0).setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y);
-                _fireRays.at(1).setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y-_fireSpriteHeight);
-                _fireRays.at(2).setPosition((int)sprite.getPosition().x+_fireSpriteHeight, (int)sprite.getPosition().y);
-                _fireRays.at(3).setPosition((int)sprite.getPosition().x, (int)sprite.getPosition().y+_fireSpriteHeight);
-                _fireRays.at(4).setPosition((int)sprite.getPosition().x-_fireSpriteWidth, (int)sprite.getPosition().y);
-
+                for(Ray * ray : _fire_Rays)
+                    ray->updatePosition(_sprite);
+            
                 return true;
             }
     }
     return false;
 }
 
-bool Bombe::rayContains(Personnage elm) 
+bool Bombe::fireContains(Personnage elm) 
 {
     sf::Vector2f position{ elm.getPosition().x + elm.getTexture().getSize().x/2 , 
                            elm.getPosition().y + elm.getTexture().getSize().y/2 };
     
-   
-    for(sf::Sprite ray : _fireRays){
-        if(ray.getGlobalBounds().contains(position)) return true;
-    }
+    for(Ray * ray : _fire_Rays)
+        if(ray->contains(position)) return true;
 
     return false;
    
 }
 
-bool Bombe::rayExpansion( sf::Sprite ray) const
-{
-    
-    std::vector<std::vector<TileMap *>> tiles = _level->getTiles();
 
-    for(int i = 0; i < _level->getGridLength(); i++)
-        for(int j = 0; j < _level->getGridLength(); j++) 
-            if(!tiles[i][j]->intersects(ray)) return true;   
-
-    return false;
-   
-}
 
 bool Bombe::isExploded()
 {
