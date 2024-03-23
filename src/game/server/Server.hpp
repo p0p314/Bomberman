@@ -13,7 +13,7 @@ class Server
     private: 
     sf::TcpListener _listener;
     std::string _charName;
-    sf::Uint8 _dir;
+    sf::Uint16 _dir;
     sf::SocketSelector _selector;
     std::vector<Player*>* _playerList;
     std::mutex* _mutex;
@@ -30,6 +30,6 @@ class Server
 
             
         void listen(std::vector<Player*>* playerList, std::mutex* mutex);
-
+        void shareToAllOthers(sf::Packet packet, Player * player);
         friend sf::Packet& operator >>(sf::Packet& packet, Server& server);
 };

@@ -7,14 +7,7 @@ Player::Player(){
    
 }
 
-Personnage * Player::getMyCharacter()
-{
-    return _myCharacter;
-}
 
-void Player::setIdType(idType type){
-    _idType = type;
-}
 
 void Player::setIp(sf::IpAddress remoteIp)
 {
@@ -22,7 +15,7 @@ void Player::setIp(sf::IpAddress remoteIp)
 }
 sf::IpAddress Player::getPublicAdress()
 {
-    return _localAdress;
+    return _localAdress;                //!Travailler avec publicAdress quand plusieurs joueurs
 }
 
 bool Player::isOwner()
@@ -43,6 +36,17 @@ void Player::setSocket(sf::TcpSocket * socket)
     _client = socket;
 }
 
+void Player::getPacket()
+{
+    sf::Packet packet;
+    if(_client->receive(packet) == sf::Socket::Done){
+        packet >> _charNameFromPacket >>_dirFromPacket;
+    } else {
+        _charNameFromPacket = "none";
+        _dirFromPacket = 10;
+    }
+}
+
 bool Player::joinAGame()
 {
     if(_client->connect(sf::IpAddress("127.0.0.1"), 2000) != sf::Socket::Done)
@@ -50,8 +54,17 @@ bool Player::joinAGame()
         std::cout << "player : connexion echouee" <<  std::endl;
         return false;
     }
-    std::cout << "player : connexion reussi" <<  std::endl;
     return true;
+}
+
+std::string Player::getCharNameFromPacket()
+{
+    return _charNameFromPacket;
+}
+
+sf::Uint16 Player::getDirFromPacket()
+{
+    return _dirFromPacket;
 }
 
 void Player::addEvent(std::string charName, sf::Uint16 type)
@@ -61,9 +74,10 @@ void Player::addEvent(std::string charName, sf::Uint16 type)
     packet << charName << type;
     if(_client->getRemoteAddress() != sf::IpAddress::None)
     {
+       // std::cout<<"Player :Envoi du paquet  "<<std::endl;
         sf::Socket::Status status = _client->send(packet);
-        if(status == sf::Socket::Done)
-            std::cout<<"Envoye sur le port "<< _client->getRemotePort() <<std::endl;
-    } else std::cout<<"Connexion au serveur perdue "<< _client->getLocalPort() <<std::endl;
+        if(status != sf::Socket::Done)
+            std::cout<<"Player : erreur pendant l'envoi du paquet "<< _client->getRemoteAddress() <<std::endl;
+    } else std::cout<<"Player : Connexion au serveur perdue pour "<< _client->getRemoteAddress() <<std::endl;
     
 }

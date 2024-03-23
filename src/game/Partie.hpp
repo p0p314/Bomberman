@@ -22,16 +22,20 @@ class Partie
         Player * _player;
         std::mutex * _mutex;
         std::vector<Personnage*> _characterList;
-        bool _exit;
+
+        bool _allowingMovement = false,
+            _exit;
 
     public: 
         Partie(sf::RenderWindow * window);
+        Partie(sf::RenderWindow * window, Player * creator);
+        Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server);
         std::vector<Personnage*> getCharacterList();
         Monde * getLevel();
         void startServer();
        //~Partie();
         int Run(); 
-        void HandleEvents(sf::Event, bool AllowingMovement);
+        void HandleEvents(sf::Event);
         void Update(float dt);
         void Draw();
 

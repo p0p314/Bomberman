@@ -8,21 +8,21 @@ class Player
 {
    private :
     sf::TcpSocket * _client;
-    Personnage * _myCharacter;
     sf::IpAddress _localAdress;
-    enum idType{PRIVATE , PUBLIC};
-    idType _idType;
-
+   
+    std::string _charNameFromPacket;
+    sf::Uint16 _dirFromPacket;
     public : 
-        Personnage * getMyCharacter();
         Player();
         bool joinAGame();
-        void setIdType(idType type);
-        void setId(sf::String id);
         sf::IpAddress getPublicAdress();
         void setIp(sf::IpAddress);
         bool isOwner();
         void addEvent(std::string charName, sf::Uint16 type);
+
+        void getPacket();
+        std::string getCharNameFromPacket();
+        sf::Uint16 getDirFromPacket();
 
         sf::TcpSocket * getSocket() ;
         void setSocket(sf::TcpSocket*);

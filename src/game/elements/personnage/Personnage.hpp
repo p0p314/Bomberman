@@ -6,7 +6,6 @@
 #define __BOMBERMAN_PERSONNAGE__
 
 #include "../element.hpp"
-#include "apparence.hpp"
 #include "../bombe/Bombe.hpp"
 #include "../../carte/Monde.h"
 #include <iostream>
@@ -23,10 +22,35 @@ class Monde;
 class Player;
 class Personnage : public Element, public sf::Drawable
 {
+public : 
+   
+    enum skin{
+        titi = 0,
+        toto
+    };
+    Personnage() = delete;
+    Personnage(Monde *monde, skin skin); //TODO: définir init pos au chargement de la map
+    void setPlayer(Player *);
+    Bombe & getBombe();
+    
+    void startDeath();
+    void dying(float dt);
+    void respawn();
+   
+    sf::FloatRect getCollisionZone();
+    void updateCollisionZone();
+    void actions(sf::Event, bool allowingMovement);
+
+    bool owner();
+    Player * getOwner();
+    void Update(float dt);
+    void updateAnimation();
+    virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
+    
 private : 
 
     Monde * _level;
-    apparence skin; 
+    skin _skin; 
     Bombe  _bomb;       
     Player * _player;
     std::string _name;
@@ -58,26 +82,6 @@ private :
         bouclier = 0,
         viesRestantes = 3;
 
-public : 
-   
-    Personnage() = delete;
-    Personnage(Monde *monde, apparence apparence); //TODO: définir init pos au chargement de la map
-    
-    void setPlayer(Player *);
-    Bombe & getBombe();
-    
-    void startDeath();
-    void dying(float dt);
-    void respawn();
-   
-    sf::FloatRect getCollisionZone();
-    void updateCollisionZone();
-    void actions(sf::Event, bool allowingMovement);
-
-    bool owner();
-    void Update(float dt);
-    void updateAnimation();
-    virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
 };
 
 

@@ -60,37 +60,64 @@ sf::Uint8 Server::getDirection()
     return _dir;
 }
 
+void Server::shareToAllOthers(sf::Packet packet, Player * difuseur)
+{
+    if (_selector.wait(sf::microseconds(500))) {                 //!Si latence reduire la durée du wait (=) getPacket()
+        for (auto it = _playerList->begin(); it != _playerList->end();) {
+            Player* player = *it;
+            if(player != difuseur)                              //!En solo, mettre en commentaire pour tester l'envoi de paquet
+            {
+                sf::TcpSocket* socket = player->getSocket();
+
+                if (_selector.isReady(*socket)) {
+                    sf::Socket::Status status = socket->send(packet);
+                    if (status == sf::Socket::Done) 
+                        std::cout << "serveur : a envoye sur le socket de "<< socket->getRemoteAddress()  << std::endl;
+                    else if(status == sf::Socket::Disconnected) {
+                        // Le client s'est déconnecté
+                       std::cout << socket->getRemoteAddress() << " c'est deconnecte" << std::endl;
+                       _selector.remove(*socket);
+                        delete player;
+                        it = _playerList->erase(it);
+                        continue;
+                    } else {
+                        std::cerr << "Erreur lors de la réception des données sur le socket." << std::endl;
+                    }
+                }
+            }
+            
+            ++it;
+        }
+    }
+}
 
 void Server::getPacket() {
-    // Attendre que des données soient disponibles sur au moins un socket
-    if (_selector.wait(sf::milliseconds(100))) {
-        // Parcourir tous les joueurs connectés
+    if (_selector.wait(sf::microseconds(500))) {
         for (auto it = _playerList->begin(); it != _playerList->end();) {
             Player* player = *it;
             sf::TcpSocket* socket = player->getSocket();
-            
-            // Vérifier si le socket est prêt à être lu
+
             if (_selector.isReady(*socket)) {
                 sf::Packet packet;
                 
-                // Recevoir les données du socket
                 sf::Socket::Status status = socket->receive(packet);
                 
                 if (status == sf::Socket::Done) {
-                    std::cout << "recu" <<std::endl;
+                    if(packet >> _charName >> _dir)
+                    std::cout << "serveur : packet recu de "<< _charName;
+                    std::cout << " - option : " << _dir << std::endl;
+                        shareToAllOthers(packet,player);
                 } else if (status == sf::Socket::Disconnected) {
-                    // Le client s'est déconnecté
+                    std::cout << socket->getRemoteAddress() << " c'est deconnecte" << std::endl;
                     _selector.remove(*socket);
                     delete player;
                     it = _playerList->erase(it);
                     continue;
                 } else {
-                    // Erreur lors de la réception des données
                     std::cerr << "Erreur lors de la réception des données sur le socket." << std::endl;
                 }
             }
             
-            // Passer au joueur suivant
             ++it;
         }
     }

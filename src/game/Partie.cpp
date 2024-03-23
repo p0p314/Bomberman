@@ -7,9 +7,25 @@ Partie::Partie(sf::RenderWindow * window) : _window(window), _mutex(new std::mut
     
     _level = new Monde();
     _level->initialisation();
-    //_characterList.push_back(new Personnage(_level, titi));
+}
+Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), _mutex(new std::mutex)
+{
+    _player = creator;
+    _server = new Server();
+    
+    _level = new Monde();
+    _level->initialisation();
+    //! waitinforPlayers(); //fonction avec une boucle while et de l'affichage dedans, comme ça le run de la partie ne se lance que quand le nombre de joueurs necessaire est atteint
 }
 
+Partie::Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server) :  _window(window), _mutex(new std::mutex)
+{
+    _player = joiner;
+    // _server = new Server(); //! A supprimer
+    
+    _level = new Monde();
+    _level->initialisation();
+}
 void Partie::startServer()
 {
     std::thread gameServer(&Server::listen, _server, _server->getPlayers(), _mutex);
@@ -35,13 +51,14 @@ int Partie::Run()
     sf::Event event;
     sf::Clock clock;
     
-    bool allowingMovement = false;
     int i = 0;
      
     
 
-    while(!_exit){
-        while(_server->getPlayers()->size() < 1)
+    while(!_exit){  //! <!> Les deux joueurs ne peuvent pas avoir le serveur lancé <!> 
+                    //! Déplacer la première partie du code dans une fonction déstinée au créateur de la partie, faire une page de chargement avec ce code qui tourne en fond ?
+                    
+        while(_server->getPlayers()->size() < 1)                                    //!!!!!! Passer à deux pour tester 
         {  
             if(!_player->joinAGame()){
                 if(i == 3) exit(1);        
@@ -52,19 +69,20 @@ int Partie::Run()
         if(_characterList.size() != _server->getPlayers()->size())
         {   
             std::vector<Player*> * players = _server->getPlayers();
+            Personnage::skin skins[] = { Personnage ::toto,Personnage::titi}; 
             for(int j = 0; j < players->size() ; j++){
-                Personnage *p = new Personnage(_level,titi);
+                Personnage *p = new Personnage(_level,skins[i]);
                 p->setPlayer(_player);
                 _characterList.push_back(p);
             }
-            
-            std::cout << _characterList.size() << std::endl;
-            std::cout << _server->getPlayers()->size() << std::endl;
-            allowingMovement = true;
+            std::cout <<"nb Personnage : " << _characterList.size();
+            std::cout <<", nb Joueur : "<< _server->getPlayers()->size() << std::endl;
+            _allowingMovement = true;
         }
+        //!------------------------------------------------------------------------------------------------------------
             
         
-        HandleEvents(event,allowingMovement); //! Mettre variable allowingMovement
+        HandleEvents(event); 
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);
         clock.restart();
@@ -74,13 +92,18 @@ int Partie::Run()
     return _exit;
 }
 
-void Partie::HandleEvents(sf::Event event,bool alLowingMovement)
+void Partie::HandleEvents(sf::Event event)
 {
     while (_window->pollEvent(event)) {
           
-            if(event.type == sf::Event::Closed) _exit = true ;
-            for(Personnage * charchater : _characterList) //!Ajouter l'autorisation de mouvement
-                charchater->actions(event, alLowingMovement);
+            if(event.type == sf::Event::Closed){
+                _exit = true ;
+                for(Personnage * charchater : _characterList){
+                    charchater->getOwner()->getSocket()->disconnect();
+                }
+            } 
+            for(Personnage * charchater : _characterList) 
+                charchater->actions(event, _allowingMovement);
     }
 }
 
