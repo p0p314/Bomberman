@@ -10,7 +10,8 @@
 #include "../bombe/Bombe.hpp"
 #include "../../carte/Monde.h"
 #include <iostream>
-
+#include "../../server/Server.hpp"
+#include "../../player/Player.hpp"
 
 /**
  * La classe Personnage a un pointeur vers Monde 
@@ -19,7 +20,7 @@
  * à son monde et interagir avec les autres éléments du monde
 */
 class Monde;
-
+class Player;
 class Personnage : public Element, public sf::Drawable
 {
 private : 
@@ -27,8 +28,8 @@ private :
     Monde * _level;
     apparence skin; 
     Bombe  _bomb;       
-    
-    std::string nom;
+    Player * _player;
+    std::string _name;
     
     enum Dir{Up, Right, Down, Left};
     
@@ -62,6 +63,7 @@ public :
     Personnage() = delete;
     Personnage(Monde *monde, apparence apparence); //TODO: définir init pos au chargement de la map
     
+    void setPlayer(Player *);
     Bombe & getBombe();
     
     void startDeath();
@@ -72,6 +74,7 @@ public :
     void updateCollisionZone();
     void actions(sf::Event, bool allowingMovement);
 
+    bool owner();
     void Update(float dt);
     void updateAnimation();
     virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;

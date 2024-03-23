@@ -14,7 +14,7 @@ Personnage::Personnage(Monde* level,apparence apparence) : skin(apparence), _bom
         _sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
                                               _spriteWidth,_spriteHeight));
         _sprite.setScale(sf::Vector2f(2.f,2.f));
-        nom = titi;
+        _name = "titi";
     } 
 
 
@@ -27,10 +27,15 @@ Personnage::Personnage(Monde* level,apparence apparence) : skin(apparence), _bom
                 tiles[1][1]->getSprite().getPosition().y  ); 
     
 
-
+    
   
 }
 
+
+void Personnage::setPlayer(Player * player)
+{
+    _player = player;
+}
 sf::FloatRect Personnage::getCollisionZone()
 {
     return _collisionZone;
@@ -90,40 +95,41 @@ void Personnage::startDeath()
 void Personnage::actions(sf::Event event, bool allowingMovement)
 {    
     if(allowingMovement && !_dying){
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ||
+        if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ||
             sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
             sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::Q) )
+            sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) && owner() )
         {
             _moving = true;
         } else _moving = false;
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){
+        if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && owner())){
             _posSpriteAnimation.y = Up; 
             _sprite.move(0,-_speed);
             if(_level->isColision(this))
                 _sprite.move(0,_speed);    
         }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){ 
+        if((sf::Keyboard::isKeyPressed(sf::Keyboard::D)) && owner()){ 
             _posSpriteAnimation.y = Right; 
             _sprite.move(_speed,0);
             if(_level->isColision(this)) 
                 getSprite().move(-_speed,0);
+                _player->addEvent(_name,sf::Uint16(2));
         }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){ 
+        if((sf::Keyboard::isKeyPressed(sf::Keyboard::S)) && owner()){ 
             _posSpriteAnimation.y = Down; 
             _sprite.move(0,_speed);
             if(_level->isColision(this)) 
                 getSprite().move(0,-_speed);
         }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){ 
+        if((sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) && owner()){ 
             _posSpriteAnimation.y = Left; 
             _sprite.move(-_speed,0);
             if(_level->isColision(this)) 
                 getSprite().move(_speed,0);
         }   
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) { 
+        if ((sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) && owner()) { 
             if(getBombe().plant(_level)){
                 getBombe().setVisibility(true);
                _bombInHand = false;
@@ -204,4 +210,10 @@ void Personnage::draw(sf::RenderTarget & target, sf::RenderStates states) const
     
     if(_alive || _dying)target.draw(_sprite);
     
+}
+
+bool Personnage::owner()
+{
+    if(_player->isOwner()) return true;
+    else return false;
 }
