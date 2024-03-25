@@ -5,32 +5,54 @@
 #include "Personnage.hpp"
 
 
-Personnage::Personnage(Monde* level,apparence apparence) : skin(apparence), _bomb(*this), _posSpriteAnimation(1,Down)
+Personnage::Personnage(Monde* level,skin apparence) : _skin(apparence), _bomb(*this), _posSpriteAnimation(1,Down)
 {
     _level = level;
-    if(skin == apparence::titi){
+    if(_skin == skin::titi)
+    {
+        _name = "titi";
         if(!_texture.loadFromFile("assets/bomber.png")) perror("texture bomber 'titi'");
+        
         _sprite.setTexture(_texture);
         _sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
                                               _spriteWidth,_spriteHeight));
         _sprite.setScale(sf::Vector2f(2.f,2.f));
-        nom = titi;
+
+        if(!_textureAtlas.loadFromFile("assets/bomberMort.png"))
+            perror("Texture mort bomberman");
+
+        std::vector<std::vector<TileMap *>> tiles = _level->getTiles();
+        setPosition(tiles[1][1]->getSprite().getPosition().x ,
+                    tiles[1][1]->getSprite().getPosition().y  ); 
     } 
 
+    if(_skin == skin::toto)
+    {
+        _name ="toto";
+         if(!_texture.loadFromFile("assets/bomber.png")) perror("texture bomber 'titi'");
+        
+        _sprite.setTexture(_texture);
+        _sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
+                                              _spriteWidth,_spriteHeight));
+        _sprite.setScale(sf::Vector2f(2.f,2.f));
 
-    if(!_textureAtlas.loadFromFile("assets/bomberMort.png"))
-        perror("Texture bomberman general");
+        if(!_textureAtlas.loadFromFile("assets/bomberMort.png"))
+            perror("Texture mort bomberman");
 
+        std::vector<std::vector<TileMap *>> tiles = _level->getTiles();
+        setPosition(tiles[_level->getGridLength()-2][_level->getGridLength()-2]->getSprite().getPosition().x ,
+                    tiles[_level->getGridLength()-2][_level->getGridLength()-2]->getSprite().getPosition().y  ); 
+    }
 
-    std::vector<std::vector<TileMap *>> tiles = _level->getTiles();
-    setPosition(tiles[1][1]->getSprite().getPosition().x ,
-                tiles[1][1]->getSprite().getPosition().y  ); 
     
-
-
   
 }
 
+
+void Personnage::setPlayer(Player * player)
+{
+    _player = player;
+}
 sf::FloatRect Personnage::getCollisionZone()
 {
     return _collisionZone;
@@ -88,49 +110,62 @@ void Personnage::startDeath()
 }
 
 void Personnage::actions(sf::Event event, bool allowingMovement)
-{    
-    if(allowingMovement && !_dying){
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::Q) )
-        {
-            _moving = true;
-        } else _moving = false;
+{   
+    _player->getPacket();
+    if(owner() || _player->getCharNameFromPacket() == _name){
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){
-            _posSpriteAnimation.y = Up; 
-            _sprite.move(0,-_speed);
-            if(_level->isColision(this))
-                _sprite.move(0,_speed);    
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){ 
-            _posSpriteAnimation.y = Right; 
-            _sprite.move(_speed,0);
-            if(_level->isColision(this)) 
-                getSprite().move(-_speed,0);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){ 
-            _posSpriteAnimation.y = Down; 
-            _sprite.move(0,_speed);
-            if(_level->isColision(this)) 
-                getSprite().move(0,-_speed);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){ 
-            _posSpriteAnimation.y = Left; 
-            _sprite.move(-_speed,0);
-            if(_level->isColision(this)) 
-                getSprite().move(_speed,0);
-        }   
+        if(allowingMovement && !_dying){
+            if(((sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
+                sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) && owner()) || (_player->getDirFromPacket() != 0 && _player->getDirFromPacket() != 10 ))
+            {
+                _moving = true;
+            } else _moving = false;
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) { 
-            if(getBombe().plant(_level)){
-                getBombe().setVisibility(true);
-               _bombInHand = false;
-               _level->getBombList().push_back(std::make_pair(this,&getBombe()));
+            if(((sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && owner())) || _player->getDirFromPacket() == 1){
+                _posSpriteAnimation.y = Up; 
+                _sprite.move(0,-_speed);
+                if(_level->isColision(this))
+                    _sprite.move(0,_speed);
+                _player->addEvent(_name,sf::Uint16(1));
+    
+            }
+            if(((sf::Keyboard::isKeyPressed(sf::Keyboard::D)) && owner()) || _player->getDirFromPacket() == 2){ 
+                _posSpriteAnimation.y = Right; 
+                _sprite.move(_speed,0);
+                if(_level->isColision(this)) 
+                    getSprite().move(-_speed,0);
+                _player->addEvent(_name,sf::Uint16(2));
+            }
+            if(((sf::Keyboard::isKeyPressed(sf::Keyboard::S)) && owner()) || _player->getDirFromPacket() == 3){ 
+                _posSpriteAnimation.y = Down; 
+                _sprite.move(0,_speed);
+                if(_level->isColision(this)) 
+                    getSprite().move(0,-_speed);
+                _player->addEvent(_name,sf::Uint16(3));
+
+            }
+            if(((sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) && owner()) || _player->getDirFromPacket() == 4){ 
+                _posSpriteAnimation.y = Left; 
+                _sprite.move(-_speed,0);
+                if(_level->isColision(this)) 
+                    getSprite().move(_speed,0);
+                _player->addEvent(_name,sf::Uint16(4));
+
             }   
+
+            if (((sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) && owner() ) || _player->getDirFromPacket() == 0) { 
+                if(getBombe().plant(_level)){
+                    getBombe().setVisibility(true);
+                    _bombInHand = false;
+                    _level->getBombList().push_back(std::make_pair(this,&getBombe()));
+                    _player->addEvent(_name,sf::Uint16(0));
+                } 
+
+            }
         }
-    }
+    } 
 }
 
 void Personnage::Update(float dt)
@@ -204,4 +239,15 @@ void Personnage::draw(sf::RenderTarget & target, sf::RenderStates states) const
     
     if(_alive || _dying)target.draw(_sprite);
     
+}
+
+bool Personnage::owner()
+{
+    if(_player->isOwner()) return true;
+    else return false;
+}
+
+Player * Personnage::getOwner()
+{
+    return _player;
 }

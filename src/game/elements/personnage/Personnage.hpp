@@ -6,11 +6,11 @@
 #define __BOMBERMAN_PERSONNAGE__
 
 #include "../element.hpp"
-#include "apparence.hpp"
 #include "../bombe/Bombe.hpp"
 #include "../../carte/Monde.h"
 #include <iostream>
-
+#include "../../server/Server.hpp"
+#include "../../player/Player.hpp"
 
 /**
  * La classe Personnage a un pointeur vers Monde 
@@ -19,16 +19,41 @@
  * à son monde et interagir avec les autres éléments du monde
 */
 class Monde;
-
+class Player;
 class Personnage : public Element, public sf::Drawable
 {
+public : 
+   
+    enum skin{
+        titi = 0,
+        toto
+    };
+    Personnage() = delete;
+    Personnage(Monde *monde, skin skin); //TODO: définir init pos au chargement de la map
+    void setPlayer(Player *);
+    Bombe & getBombe();
+    
+    void startDeath();
+    void dying(float dt);
+    void respawn();
+   
+    sf::FloatRect getCollisionZone();
+    void updateCollisionZone();
+    void actions(sf::Event, bool allowingMovement);
+
+    bool owner();
+    Player * getOwner();
+    void Update(float dt);
+    void updateAnimation();
+    virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
+    
 private : 
 
     Monde * _level;
-    apparence skin; 
+    skin _skin; 
     Bombe  _bomb;       
-    
-    std::string nom;
+    Player * _player;
+    std::string _name;
     
     enum Dir{Up, Right, Down, Left};
     
@@ -57,24 +82,6 @@ private :
         bouclier = 0,
         viesRestantes = 3;
 
-public : 
-   
-    Personnage() = delete;
-    Personnage(Monde *monde, apparence apparence); //TODO: définir init pos au chargement de la map
-    
-    Bombe & getBombe();
-    
-    void startDeath();
-    void dying(float dt);
-    void respawn();
-   
-    sf::FloatRect getCollisionZone();
-    void updateCollisionZone();
-    void actions(sf::Event, bool allowingMovement);
-
-    void Update(float dt);
-    void updateAnimation();
-    virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
 };
 
 
