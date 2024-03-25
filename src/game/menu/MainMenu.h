@@ -26,7 +26,7 @@ public:
     {
         return MainMenuSelected;
     }
-    bool exit;
+    int _exit;
     bool update();
     bool jeu = false;
     void draw();
@@ -36,6 +36,7 @@ public:
     RenderWindow *_windowM;
 
 private:
+    Player *joueur;
     int MainMenuSelected;
     Font font;
 };

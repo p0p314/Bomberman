@@ -2,7 +2,7 @@
 #include <iostream>
 Server::Server() : _selector(), _playerList(new std::vector<Player*>())
 {
-    if(_listener.listen(2000, sf::IpAddress::Any) != sf::Socket::Done)
+    if (_listener.listen(2000, sf::IpAddress::Any) != sf::Socket::Done)
     {
         std::cout << "Impossible de creer le serveur" <<std::endl;
         exit(1);
@@ -17,7 +17,7 @@ void Server::listen(std::vector<Player*>* playerList, std::mutex* mutex)
     _playerList = playerList;
     _mutex = mutex;
     std::cout<< "ecoute sur le port " << _listener.getLocalPort() <<std::endl;
-    while (_playerList->empty())
+    while (_playerList->size() < 2)
     {
         std::cout<< "attente de connexion... " <<std::endl;
         if (_selector.wait())
@@ -27,8 +27,14 @@ void Server::listen(std::vector<Player*>* playerList, std::mutex* mutex)
             sf::TcpSocket* socket = new sf::TcpSocket();
             if (_listener.accept(*socket) == sf::Socket::Done)
             {
-                
-                Player* player = new Player();
+                if (playerList->size() > 2)
+                {
+                    socket->disconnect();
+                    delete socket;
+                    continue;
+                }
+
+                Player *player = new Player();
                 player->setSocket(socket);
                // player->setIp(socket->getRemoteAddress());
                 std::unique_lock<std::mutex> lock(*_mutex);

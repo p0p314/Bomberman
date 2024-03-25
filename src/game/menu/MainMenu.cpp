@@ -5,6 +5,7 @@
 #include "MainMenu.h"
 
 MainMenu::MainMenu(float width, float height) {
+    joueur = new Player();
     ContextSettings settings;
     settings.antialiasingLevel = 16;
     _windowM = new RenderWindow();
@@ -25,25 +26,25 @@ MainMenu::MainMenu(float width, float height) {
     mainMenu[0].setFillColor(Color::White);
     mainMenu[0].setString("Rejoindre une Partie");
     mainMenu[0].setCharacterSize(50);
-    mainMenu[0].setPosition(200, 270);
+    mainMenu[0].setPosition(170, 290);
     // Bouton Créer une partie
     mainMenu[1].setFont(font);
     mainMenu[1].setFillColor(Color::White);
     mainMenu[1].setString("CREER UNE PARTIE");
     mainMenu[1].setCharacterSize(50);
-    mainMenu[1].setPosition(200, 350);
+    mainMenu[1].setPosition(170, 350);
     // Bouton Score
     mainMenu[2].setFont(font);
     mainMenu[2].setFillColor(Color::White);
     mainMenu[2].setString("SCORE");
     mainMenu[2].setCharacterSize(50);
-    mainMenu[2].setPosition(200, 410);
+    mainMenu[2].setPosition(170, 410);
     // Bouton Paramètres
     mainMenu[3].setFont(font);
     mainMenu[3].setFillColor(Color::White);
     mainMenu[3].setString("PARAMETRES");
     mainMenu[3].setCharacterSize(50);
-    mainMenu[3].setPosition(200, 470);
+    mainMenu[3].setPosition(170, 470);
 
     MainMenuSelected = 0;
 }
@@ -51,8 +52,8 @@ MainMenu::~MainMenu() { delete _windowM; };
 
 void MainMenu::Run()
 {
-    exit = false;
-    while (!exit)
+    _exit = 0;
+    while (_exit != 1)
     {
         draw();
         HandleEvents();
@@ -64,7 +65,7 @@ void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
     while (_windowM->pollEvent(event))
     {
         if (event.type == sf::Event::Closed)
-            exit = true;
+            _exit = 1;
         if (sf::Keyboard::isKeyPressed(Keyboard::Up))
         {
             MoveUp();
@@ -73,11 +74,15 @@ void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
             MoveDown();
         if (MainMenuSelected == 0 && sf::Keyboard::isKeyPressed(Keyboard::Enter))
         {
-            Partie partie(_windowM); // Ici le joueur décide de jouer, ceci déclenche donc la création de la classe Partie.
-            exit = partie.Run();     // Execution de la méthode Run de la classe Partie qui renvoi un booléen
+            Partie *partie = new Partie(_windowM, joueur, sf::IpAddress("127.0.0.1")); // Rejoindre partie;
+            _exit = partie->Run();
         }
-        if (MainMenuSelected == 1)
+        if (MainMenuSelected == 1 && sf::Keyboard::isKeyPressed(Keyboard::Enter))
         {
+            Partie *partie = new Partie(_windowM, joueur); // Ici le joueur décide de jouer, ceci déclenche donc la création de la classe Partie.
+            _exit = partie->Run();                         // Execution de la méthode Run de la classe Partie qui renvoi un booléen
+            std::cout << _exit;
+            delete partie;
         }
         if (MainMenuSelected == 2)
         {

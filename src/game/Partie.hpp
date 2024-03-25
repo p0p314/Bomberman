@@ -9,6 +9,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+
 class Personnage;
 class Server;
 class Player;
@@ -23,18 +24,18 @@ class Partie
         std::mutex * _mutex;
         std::vector<Personnage*> _characterList;
 
-        bool _allowingMovement = false,
-            _exit;
+        bool _allowingMovement = false;
+        int _exit;
         bool _exitM;
 
     public: 
         Partie(sf::RenderWindow * window);
         Partie(sf::RenderWindow * window, Player * creator);
         Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server);
+        ~Partie();
         std::vector<Personnage*> getCharacterList();
         Monde * getLevel();
         void startServer();
-       //~Partie();
         int Run(); 
         void HandleEvents(sf::Event);
         void Update(float dt);
