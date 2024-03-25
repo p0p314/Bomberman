@@ -13,7 +13,6 @@ Ray::Ray(sf::Texture texture, orientation orientation)
 
     _width = _sprite.getGlobalBounds().width;
     _height = _sprite.getGlobalBounds().height;
-    std::cout << _width <<" " << _height << _orientation << std::endl;
 }
 
 void Ray::updateRect(int posOnTexture)

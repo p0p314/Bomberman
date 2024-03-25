@@ -3,7 +3,7 @@
 Player::Player(){
     _client = new sf::TcpSocket();
     _client->setBlocking(false);
-    _localAdress = sf::IpAddress::getLocalAddress();
+    
    
 }
 
@@ -11,17 +11,27 @@ Player::Player(){
 
 void Player::setIp(sf::IpAddress remoteIp)
 {
-    _localAdress = remoteIp;
+    _IP = remoteIp;
 }
-sf::IpAddress Player::getPublicAdress()
+sf::IpAddress Player::getPublicIP()
 {
-    return _localAdress;                //!Travailler avec publicAdress quand plusieurs joueurs
+    return _IP;                //!Travailler avec publicAdress quand plusieurs joueurs
 }
 
+void Player::setID(sf::Uint16 id)
+{
+    std::cout << id << std::endl;
+    _ID = id;
+}
+sf::Uint16 Player::getID()
+{
+    return _ID;
+}
 bool Player::isOwner()
 {
-   // std::cout << _publicAdress << " | " << sf::IpAddress::getLocalAddress();
-    if(_localAdress ==  sf::IpAddress::getLocalAddress() ) return true;  //!Tester avec sf::IpAddress::getLocalAddress()
+    std::cout << _IP << " | " << sf::IpAddress::getPublicAddress() <<std::endl;
+    
+    if(_IP ==  sf::IpAddress::getPublicAddress() ) return true; 
     else return false;
             
 }
@@ -39,27 +49,33 @@ void Player::setSocket(sf::TcpSocket * socket)
 void Player::getPacket()
 {
     sf::Packet packet;
+    //std::cout << "player : verifie reception" <<  std::endl;
     if(_client->receive(packet) == sf::Socket::Done){
-        packet >> _charNameFromPacket >>_dirFromPacket;
+        packet >> _senderOfPacket >>_dirFromPacket;
+        std::cout << _senderOfPacket << " " << _dirFromPacket << std::endl;
     } else {
-        _charNameFromPacket = "none";
+           // std::cout << "player : verifie reception" <<  std::endl;
+
+        _senderOfPacket = 0;
         _dirFromPacket = 10;
     }
 }
 
 bool Player::joinAGame()
 {
-    if(_client->connect(sf::IpAddress("127.0.0.1"), 2000) != sf::Socket::Done)
-    {  
-        std::cout << "player : connexion echouee" <<  std::endl;
-        return false;
-    }
-    return true;
+
+        if(_client->connect(sf::IpAddress("192.168.1.2"), 2000) != sf::Socket::Done)
+        {  
+            std::cout << "player : connexion echouee" <<  std::endl;
+            return false;
+        }
+        return true;
+    
 }
 
-std::string Player::getCharNameFromPacket()
+sf::Uint16 Player::getSenderOfPacket()
 {
-    return _charNameFromPacket;
+    return _senderOfPacket;
 }
 
 sf::Uint16 Player::getDirFromPacket()
@@ -67,15 +83,17 @@ sf::Uint16 Player::getDirFromPacket()
     return _dirFromPacket;
 }
 
-void Player::addEvent(std::string charName, sf::Uint16 type)
+void Player::addEvent(sf::Uint16 id, sf::Uint16 type)
 {
     sf::Packet packet;
-    
-    packet << charName << type;
+    std::cout<<id <<" " << type<<std::endl;
+    packet << id << type;
     if(_client->getRemoteAddress() != sf::IpAddress::None)
     {
        // std::cout<<"Player :Envoi du paquet  "<<std::endl;
         sf::Socket::Status status = _client->send(packet);
+        if(status == sf::Socket::Done) 
+            //std::cout<<"Player : envoi du paquet reussi "<< _client->getRemoteAddress() <<std::endl;
         if(status != sf::Socket::Done)
             std::cout<<"Player : erreur pendant l'envoi du paquet "<< _client->getRemoteAddress() <<std::endl;
     } else std::cout<<"Player : Connexion au serveur perdue pour "<< _client->getRemoteAddress() <<std::endl;

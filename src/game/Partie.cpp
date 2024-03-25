@@ -13,7 +13,6 @@ Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), 
     int i;
     _player = creator;
     _server = new Server();
-    
     _level = new Monde();
     _level->initialisation();
     startServer();
@@ -49,7 +48,6 @@ Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), 
 Partie::Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server) :  _window(window), _mutex(new std::mutex)
 {
     _player = joiner;
-
     _level = new Monde();
     _level->initialisation();
     _player->joinAGame();
@@ -94,7 +92,6 @@ int Partie::Run() // Méthode appeler par le menu lorsque le joueur rejoint une 
 
         //!------------------------------------------------------------------------------------------------------------
             
-        
         HandleEvents(event); 
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);

@@ -29,7 +29,7 @@ public :
         toto
     };
     Personnage() = delete;
-    Personnage(Monde *monde, skin skin); //TODO: définir init pos au chargement de la map
+    Personnage(Player * player, Monde *monde, skin skin); //TODO: définir init pos au chargement de la map
     void setPlayer(Player *);
     Bombe & getBombe();
     
@@ -41,7 +41,7 @@ public :
     void updateCollisionZone();
     void actions(sf::Event, bool allowingMovement);
 
-    bool owner();
+    bool owner(sf::Uint16 id);
     Player * getOwner();
     void Update(float dt);
     void updateAnimation();
@@ -55,7 +55,7 @@ private :
     Player * _player;
     std::string _name;
     
-    enum Dir{Up, Right, Down, Left};
+    enum Dir{Up = 0, Right, Down, Left};
     
     int _spriteWidth = 16,
         _spriteHeight = 24;
@@ -77,7 +77,10 @@ private :
     sf::Texture _textureAtlas;
     sf::Sprite _deathSprite;
 
+    sf::Vector2f _spawnPos;
     sf::FloatRect _collisionZone;
+
+    void move(Dir dir);
     int quantiteBombe = 2,
         bouclier = 0,
         viesRestantes = 3;

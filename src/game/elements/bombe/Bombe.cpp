@@ -112,7 +112,7 @@ bool Bombe::plant(Monde * monde)
                                    tiles[i][j]->getSprite().getPosition().y  ); //!: Les position sont bizarre, a vérifier si changement de la taille du sprite de bombe
                 for(Ray * ray : _fire_Rays)
                     ray->updatePosition(_sprite);
-            
+                setVisibility(true);
                 return true;
             }
     }
