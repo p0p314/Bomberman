@@ -12,8 +12,9 @@ class Server
 {
     private: 
     sf::TcpListener _listener;
-    std::string _charName;
-    sf::Uint16 _dir;
+   
+    sf::Uint16 _dir,
+               _ID;
     sf::SocketSelector _selector;
     std::vector<Player*>* _playerList;
     std::mutex* _mutex;
@@ -21,8 +22,8 @@ class Server
     public:
         Server();
         bool waitingPLayer(Partie * partie);
-        std::string getCharName();
-        sf::Uint8 getDirection();
+        sf::Uint16 getID();
+        sf::Uint16 getDirection();
         sf::TcpListener  getListener();
         void getPacket();
 

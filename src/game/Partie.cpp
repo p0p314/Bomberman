@@ -12,16 +12,16 @@ Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), 
 {
     _player = creator;
     _server = new Server();
-    
     _level = new Monde();
     _level->initialisation();
+    
+    startServer();
     //! waitinforPlayers(); //fonction avec une boucle while et de l'affichage dedans, comme ça le run de la partie ne se lance que quand le nombre de joueurs necessaire est atteint
 }
 
 Partie::Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server) :  _window(window), _mutex(new std::mutex)
 {
     _player = joiner;
-    // _server = new Server(); //! A supprimer
     
     _level = new Monde();
     _level->initialisation();
@@ -58,30 +58,44 @@ int Partie::Run()
     while(!_exit){  //! <!> Les deux joueurs ne peuvent pas avoir le serveur lancé <!> 
                     //! Déplacer la première partie du code dans une fonction déstinée au créateur de la partie, faire une page de chargement avec ce code qui tourne en fond ?
                     
-        while(_server->getPlayers()->size() < 1)                                    //!!!!!! Passer à deux pour tester 
+        while(_server->getPlayers()->size() < 2 && !_allowingMovement)                                    //!!!!!! Passer à deux pour tester 
         {  
-            if(!_player->joinAGame()){
-                if(i == 3) exit(1);        
-                sf::sleep(sf::seconds(1.0));
-            }
+            if( _server->getPlayers()->size() <1)
+                if(!_player->joinAGame() ){
+                    if(i == 3) {
+                        exit(1);        
+                        i++;
+                    }
+                }
+                    
+            sf::sleep(sf::seconds(1.0));
+            std::cout <<"nb Joueur : "<< _server->getPlayers()->size() << std::endl;
         }
 
-        if(_characterList.size() != _server->getPlayers()->size())
+        if(_characterList.size() < _server->getPlayers()->size())
         {   
             std::vector<Player*> * players = _server->getPlayers();
-            Personnage::skin skins[] = { Personnage ::toto,Personnage::titi}; 
-            for(int j = 0; j < players->size() ; j++){
-                Personnage *p = new Personnage(_level,skins[i]);
-                p->setPlayer(_player);
+            Personnage::skin skins[] = {Personnage::titi, Personnage::toto}; 
+            for(Player * player : *players)
+            {
+                Personnage *p = new Personnage(player, _level, skins[i++]);
+                std::cout <<player->getPublicIP() << std::endl;
                 _characterList.push_back(p);
             }
+            
             std::cout <<"nb Personnage : " << _characterList.size();
             std::cout <<", nb Joueur : "<< _server->getPlayers()->size() << std::endl;
             _allowingMovement = true;
-        }
+        } if(_characterList.size() > _server->getPlayers()->size())
+        {
+            std::cout <<"nb Personnage : " << _characterList.size();
+            std::cout <<", nb Joueur : "<< _server->getPlayers()->size() << std::endl;
+            sf::sleep(sf::seconds(1.0));
+            _allowingMovement = false;
+
+        } //! GErer le cas ou un joueur quitte en cours de partie ( retirer personnage)
         //!------------------------------------------------------------------------------------------------------------
             
-        
         HandleEvents(event); 
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);
@@ -98,12 +112,12 @@ void Partie::HandleEvents(sf::Event event)
           
             if(event.type == sf::Event::Closed){
                 _exit = true ;
-                for(Personnage * charchater : _characterList){
-                    charchater->getOwner()->getSocket()->disconnect();
+                for(Personnage * character : _characterList){
+                    character->getOwner()->getSocket()->disconnect();
                 }
             } 
-            for(Personnage * charchater : _characterList) 
-                charchater->actions(event, _allowingMovement);
+            for(Personnage * character : _characterList) 
+                character->actions(event, _allowingMovement);
     }
 }
 
