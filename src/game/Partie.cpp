@@ -42,7 +42,8 @@ Monde * Partie::getLevel()
 {
     return _level;
 }
-int Partie::Run()
+
+int Partie::Run() // Méthode appeler par le menu lorsque le joueur rejoint une partie.
 {
     _exit = false;
 
@@ -100,7 +101,7 @@ int Partie::Run()
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);
         clock.restart();
-        Draw();
+        Draw(); // Fonction pour dessiner les personnages la carte.
     }
 
     return _exit;
@@ -121,9 +122,10 @@ void Partie::HandleEvents(sf::Event event)
     }
 }
 
-void Partie::Update(float dt){
-    for(Personnage * charchater : _characterList)
-            charchater->Update(dt);
+void Partie::Update(float dt)
+{
+    for (Personnage *character : _characterList)
+        character->Update(dt);
 }
 
 void Partie::Draw()
@@ -132,12 +134,13 @@ void Partie::Draw()
 
     _window->clear();
 
-    for(int i = 0; i < _level->getGridLength(); i++)
-        for(int j = 0; j < _level->getGridLength(); j++)
-             _window->draw(tiles[i][j]->getSprite());
-    
-    for(Personnage * charchater : _characterList)
-            _window->draw(*charchater);
-            
+    _window->clear();
+    for (int i = 0; i < _level->getGridLength(); i++)
+        for (int j = 0; j < _level->getGridLength(); j++)
+            _window->draw(tiles[i][j]->getSprite());
+
+    for (Personnage *character : _characterList)
+        _window->draw(*character);
+
     _window->display();
 }

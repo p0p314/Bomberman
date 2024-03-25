@@ -25,6 +25,7 @@ class Partie
 
         bool _allowingMovement = false,
             _exit;
+        bool _exitM;
 
     public: 
         Partie(sf::RenderWindow * window);
