@@ -11,12 +11,12 @@ class Partie
     private: 
         sf::RenderWindow * _window;
         std::string _codeGame;
-        
         Monde *_level; 
 
         std::vector<Personnage*> _characterList;
         //std::vector<std::pair<Personnage*,Bombe*>> _bombList;
         bool _exit;
+        bool _exitM;
 
     public: 
         Partie(sf::RenderWindow * window);

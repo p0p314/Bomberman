@@ -5,27 +5,39 @@
 #define BOMBERMAN_MAINMENU_H
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "/home/raximex/L3/Bomberman/src/game/Partie.hpp"
 using namespace std;
 using namespace sf;
 
 #define Max_main_menu 4
 
-class MainMenu {
+class MainMenu
+{
 public:
     Text mainMenu[Max_main_menu];
+    Texture Menu;
+    Sprite MenuI;
+    Event event;
     MainMenu(float width, float height);
-    void draw(RenderWindow& window);
     void MoveUp();
     void MoveDown();
     void setMainMenuSelected(int n);
-    int MainMenuPressed(){
+    int MainMenuPressed()
+    {
         return MainMenuSelected;
     }
+    bool exit;
+    bool update();
+    bool jeu = false;
+    void draw();
+    void HandleEvents();
     ~MainMenu();
+    void Run();
+    RenderWindow *_windowM;
+
 private:
     int MainMenuSelected;
     Font font;
 };
 
-
-#endif //BOMBERMAN_MAINMENU_H
+#endif // BOMBERMAN_MAINMENU_H

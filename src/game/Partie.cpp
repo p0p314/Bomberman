@@ -1,13 +1,13 @@
 #include "Partie.hpp"
 
-Partie::Partie(sf::RenderWindow * window) : _window(window)
+Partie::Partie(sf::RenderWindow *window) : _window(window) // Le constructeur de cette classe initialise le niveau et les personnages.
 {
     _level = new Monde();
     _level->initialisation();
     _characterList.push_back(new Personnage(_level, titi));
 }
 
-int Partie::Run()
+int Partie::Run() // Méthode appeler par le menu lorsque le joueur rejoint une partie.
 {
     _exit = false;
 
@@ -24,25 +24,27 @@ int Partie::Run()
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);
         clock.restart();
-        Draw();
+        Draw(); // Fonction pour dessiner les personnages la carte.
     }
 
     return _exit;
 }
 
-void Partie::HandleEvents(sf::Event event,bool alLowingMovement)
+void Partie::HandleEvents(sf::Event event, bool allowingMovement)
 {
     while (_window->pollEvent(event)) {
-        
-            if(event.type == sf::Event::Closed) _exit = true ;
-            for(Personnage * charchater : _characterList) //!Ajouter l'autorisation de mouvement
-                charchater->actions(event, alLowingMovement);
+
+        if (event.type == sf::Event::Closed)
+            _exit = true;
+        for (Personnage *character : _characterList) //! Ajouter l'autorisation de mouvement
+            character->actions(event, allowingMovement);
     }
 }
 
-void Partie::Update(float dt){
-    for(Personnage * charchater : _characterList)
-            charchater->Update(dt);
+void Partie::Update(float dt)
+{
+    for (Personnage *character : _characterList)
+        character->Update(dt);
 }
 
 void Partie::Draw()
@@ -51,12 +53,13 @@ void Partie::Draw()
 
     _window->clear();
 
-    for(int i = 0; i < _level->getGridLength(); i++)
-        for(int j = 0; j < _level->getGridLength(); j++)
-             _window->draw(tiles[i][j]->getSprite());
-    
-    for(Personnage * charchater : _characterList)
-            _window->draw(*charchater);
-            
+    _window->clear();
+    for (int i = 0; i < _level->getGridLength(); i++)
+        for (int j = 0; j < _level->getGridLength(); j++)
+            _window->draw(tiles[i][j]->getSprite());
+
+    for (Personnage *character : _characterList)
+        _window->draw(*character);
+
     _window->display();
 }
