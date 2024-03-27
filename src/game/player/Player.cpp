@@ -64,7 +64,7 @@ void Player::getPacket()
 bool Player::joinAGame()
 {
 
-        if(_client->connect(sf::IpAddress("192.168.1.2"), 2000) != sf::Socket::Done)
+        if(_client->connect(sf::IpAddress("127.0.0.1"), 2000) != sf::Socket::Done)
         {  
             std::cout << "player : connexion echouee" <<  std::endl;
             return false;

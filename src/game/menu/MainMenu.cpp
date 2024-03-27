@@ -12,16 +12,16 @@ MainMenu::MainMenu(float width, float height) {
     _windowM->create(sf::VideoMode(width, height), "BOMBERMAN", sf::Style::Default, settings); // Création de la fenêtre
     _windowM->setFramerateLimit(30);
 
-    if (!font.loadFromFile("/home/raximex/L3/Bomberman/assets/fonts/BondiBraveDemoRegular.ttf"))
-        cout
-            << "Pas d'image ici \n";
+    if (!font.loadFromFile("assets/fonts/BondiBraveDemoRegular.ttf"))
+        cout<< "Pas d'image ici \n";
 
-    if (!Menu.loadFromFile("/home/raximex/L3/Bomberman/assets/MenuFinale.png"))
+    if (!Menu.loadFromFile("assets/MenuFinale.png"))
         cout << "Pas d'image menu";
 
     MenuI.setTexture(Menu);
 
     // Bouton Rejoindre partie
+
     mainMenu[0].setFont(font);
     mainMenu[0].setFillColor(Color::White);
     mainMenu[0].setString("Rejoindre une Partie");

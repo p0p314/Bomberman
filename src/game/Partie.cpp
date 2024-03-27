@@ -34,8 +34,7 @@ Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), 
         Personnage::skin skins[] = {Personnage ::toto, Personnage::titi};
         for (int j = 0; j < players->size(); j++)
         {
-            Personnage *p = new Personnage(_level, skins[j]);
-            p->setPlayer(_player);
+            Personnage *p = new Personnage(_player,_level, skins[j]);
             _characterList.push_back(p);
         }
         std::cout << "nb Personnage : " << _characterList.size();

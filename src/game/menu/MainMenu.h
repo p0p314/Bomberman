@@ -5,7 +5,7 @@
 #define BOMBERMAN_MAINMENU_H
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "/home/raximex/L3/Bomberman/src/game/Partie.hpp"
+#include "../Partie.hpp"
 using namespace std;
 using namespace sf;
 
