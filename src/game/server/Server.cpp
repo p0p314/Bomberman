@@ -9,8 +9,16 @@ Server::Server() : _selector(), _playerList(new std::vector<Player*>())
     }
     _selector.add(_listener);
     _listener.setBlocking(false);
+    
 }
 
+Server::~Server()
+{
+    if(!_playerList->empty())
+        for(Player * player : *_playerList)
+            delete player;
+    delete _mutex;
+}
 void Server::listen(std::vector<Player*>* playerList, std::mutex* mutex)
 {
     
@@ -19,12 +27,12 @@ void Server::listen(std::vector<Player*>* playerList, std::mutex* mutex)
     std::cout<< "ecoute sur le port " << _listener.getLocalPort() <<std::endl;
     sf::Uint16 ID = 1;
 
-    while ( _playerList->size() < 2)
+    while ( _playerList->size() < 2 && _serverOpen)
     {
-        std::cout<< "attente de connexion... " <<std::endl;
+        /*std::cout<< "attente de connexion... " <<std::endl;
         if (_selector.wait())
         {
-            std::cout<< "Nouvelle connexion detectee "  <<std::endl;
+            std::cout<< "socket pret"  <<std::endl;
 
             sf::TcpSocket* socket = new sf::TcpSocket();
             if (_listener.accept(*socket) == sf::Socket::Done)
@@ -48,17 +56,28 @@ void Server::listen(std::vector<Player*>* playerList, std::mutex* mutex)
                 std::cout << "Ajout reussi de " << socket->getRemoteAddress()<< std::endl;
             } else {
                // std::cout << "Erreur acceptation" << std::endl;
-                std::cerr << "Erreur acceptation : " <<std::endl;
+                //std::cerr <<std::endl;
+                
                 delete socket;
             }
-        }
+        }*/
     }
-    while(true){
+    while(_serverOpen)
      getPacket();
 
-    }                  //!Ajouter une dependance au nombre de joueur
+    _listener.close();                 //!Ajouter une dependance au nombre de joueur
+    std::cout << "fin thread" <<  std::endl;
 }
-
+void Server::close()
+{
+     std::cout << "suppression joueurs " << std::endl;
+    if(!_playerList->empty())
+     for(Player * player : *_playerList)
+        player->getSocket()->disconnect();
+    
+    std::cout << "joueur supprimes" << std::endl;
+    _serverOpen = false;    
+}
 std::vector<Player*>* Server::getPlayers()
 {
     return _playerList;

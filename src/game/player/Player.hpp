@@ -16,6 +16,7 @@ class Player
                _senderOfPacket;
     public : 
         Player();
+        ~Player();
         bool joinAGame();
         sf::IpAddress getPublicIP();
         void setIp(sf::IpAddress);

@@ -8,4 +8,5 @@ int main()
 {
     MainMenu menu(600, 600);
     menu.Run(); // Nous lancons iic le menu.
+    return 0;
 }

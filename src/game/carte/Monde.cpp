@@ -5,6 +5,21 @@
 Monde::Monde()
 {}
 
+Monde::~Monde()
+{
+    if(!_bombList.empty())
+        for(std::pair pair : _bombList)
+        {
+            delete pair.first;
+            delete pair.second;
+        }
+    
+    if(!_tiles.empty())
+        for(std::vector row : _tiles)
+            for(auto * tile : row)
+                delete tile;
+
+}
 void Monde::initialisation()
 {
     gridLength = 12;

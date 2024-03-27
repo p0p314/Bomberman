@@ -19,8 +19,10 @@ class Server
     std::vector<Player*>* _playerList;
     std::mutex* _mutex;
 
+    bool _serverOpen = true;
     public:
         Server();
+        ~Server();
         bool waitingPLayer(Partie * partie);
         sf::Uint16 getID();
         sf::Uint16 getDirection();
@@ -29,7 +31,7 @@ class Server
 
         std::vector<Player*>* getPlayers();
 
-            
+        void close();   
         void listen(std::vector<Player*>* playerList, std::mutex* mutex);
         void shareToAllOthers(sf::Packet packet, Player * player);
         friend sf::Packet& operator >>(sf::Packet& packet, Server& server);

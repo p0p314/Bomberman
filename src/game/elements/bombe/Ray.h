@@ -18,8 +18,8 @@ class Ray
         sf::FloatRect getRect();
         sf::Sprite getSprite() const;
 
-        sf::Sprite _sprite;
     private : 
+        sf::Sprite _sprite;
         sf::Texture _texture;
         float _width = 50, 
               _height =50;

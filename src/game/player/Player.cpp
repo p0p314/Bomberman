@@ -7,7 +7,7 @@ Player::Player(){
    
 }
 
-
+Player::~Player(){}
 
 void Player::setIp(sf::IpAddress remoteIp)
 {

@@ -5,7 +5,7 @@
 #include "MainMenu.h"
 
 MainMenu::MainMenu(float width, float height) {
-    joueur = new Player();
+    player = new Player();
     ContextSettings settings;
     settings.antialiasingLevel = 16;
     _windowM = new RenderWindow();
@@ -48,16 +48,17 @@ MainMenu::MainMenu(float width, float height) {
 
     MainMenuSelected = 0;
 }
-MainMenu::~MainMenu() { delete _windowM; };
+MainMenu::~MainMenu() { delete _windowM; delete player; };
 
 void MainMenu::Run()
 {
-    _exit = 0;
-    while (_exit != 1)
+    _exit = false;
+    while (!_exit)
     {
         draw();
         HandleEvents();
     }
+    _windowM->close();
 }
 
 void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
@@ -65,7 +66,7 @@ void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
     while (_windowM->pollEvent(event))
     {
         if (event.type == sf::Event::Closed)
-            _exit = 1;
+            _exit = true;
         if (sf::Keyboard::isKeyPressed(Keyboard::Up))
         {
             MoveUp();
@@ -74,15 +75,17 @@ void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
             MoveDown();
         if (MainMenuSelected == 0 && sf::Keyboard::isKeyPressed(Keyboard::Enter))
         {
-            Partie *partie = new Partie(_windowM, joueur, sf::IpAddress("127.0.0.1")); // Rejoindre partie;
-            _exit = partie->Run();
+            Partie *partie = new Partie(_windowM, player, sf::IpAddress("127.0.0.1")); // Rejoindre partie;
+            _exit = !partie->Run();
         }
         if (MainMenuSelected == 1 && sf::Keyboard::isKeyPressed(Keyboard::Enter))
         {
-            Partie *partie = new Partie(_windowM, joueur); // Ici le joueur décide de jouer, ceci déclenche donc la création de la classe Partie.
-            _exit = partie->Run();                         // Execution de la méthode Run de la classe Partie qui renvoi un booléen
-            std::cout << _exit;
-            delete partie;
+            Partie *partie = new Partie(_windowM, player); // Ici le joueur décide de jouer, ceci déclenche donc la création de la classe Partie.
+            _exit = !partie->Run();
+                                     // Execution de la méthode Run de la classe Partie qui renvoi un booléen
+            std::cout << "sortie du run, _exit est a : "<< _exit << std::endl;
+            //delete partie;
+            return;
         }
         if (MainMenuSelected == 2)
         {
