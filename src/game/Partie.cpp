@@ -1,46 +1,25 @@
 #include "Partie.hpp"
-Partie::Partie(sf::RenderWindow * window) : _window(window), _mutex(new std::mutex)
-{
-  
-    _player = new Player();
-    _server = new Server();
-    
-    _level = new Monde();
-    _level->initialisation();
-}
+
 Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), _mutex(new std::mutex)
 {
     int i;
     _player = creator;
-    _server = new Server();
+    _creator = true;
+   // _server = new Server();
+    
+    //startServer();          //!ajouter liste de joueurs
+    
+    _lobby = new Lobby(_window);
+    if((_exit = _lobby->Run()))
+    {
+        _exitToMenu = _lobby->getExitToMenu();   
+        return;
+    }
+  
     _level = new Monde();
     _level->initialisation();
-    startServer();
-    while (_server->getPlayers()->size() < 2) //!!!!!! Passer à deux pour tester
-    {
-        if (_server->getPlayers()->size() < 1)
-            if (!_player->joinAGame())
-            {
-                if (i == 3)
-                    exit(1);
-                sf::sleep(sf::seconds(1.0));
-            }
-        sf::sleep(sf::seconds(1.0));
-    }
-
-    if (_characterList.size() != _server->getPlayers()->size())
-    {
-        std::vector<Player *> *players = _server->getPlayers();
-        Personnage::skin skins[] = {Personnage ::toto, Personnage::titi};
-        for (int j = 0; j < players->size(); j++)
-        {
-            Personnage *p = new Personnage(_player,_level, skins[j]);
-            _characterList.push_back(p);
-        }
-        std::cout << "nb Personnage : " << _characterList.size();
-        std::cout << ", nb Joueur : " << _server->getPlayers()->size() << std::endl;
-        _allowingMovement = true;
-    }
+    _player->joinAGame();
+    
     //! waitinforPlayers(); //fonction avec une boucle while et de l'affichage dedans, comme ça le run de la partie ne se lance que quand le nombre de joueurs necessaire est atteint
 }
 
@@ -54,15 +33,18 @@ Partie::Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server)
 
 Partie::~Partie()
 {
-    delete _player;
     delete _level;
-    delete _server;
+    if(!_characterList.empty())
+        for(Personnage * character : _characterList)
+            delete character;
+    delete _gameServer;
+    delete _mutex;
+    delete _lobby;
 }
 
 void Partie::startServer()
 {
-    std::thread gameServer(&Server::listen, _server, _server->getPlayers(), _mutex);
-    gameServer.detach();
+   // _gameServer = new std::thread(&Server::listen, _server, _server->getPlayers(), _mutex);
 
 }
 
@@ -78,49 +60,72 @@ Monde * Partie::getLevel()
 
 int Partie::Run() // Méthode appeler par le menu lorsque le joueur rejoint une partie.
 {
-    _exit = 0;
 
     sf::Event event;
     sf::Clock clock;
     
+  
+       
+        
+
     int i = 0;
 
-    while (_exit != 2)
-    { //! <!> Les deux joueurs ne peuvent pas avoir le serveur lancé <!>
-      //! Déplacer la première partie du code dans une fonction déstinée au créateur de la partie, faire une page de chargement avec ce code qui tourne en fond ?
+    /*if (_characterList.size() != _server->getPlayers()->size())
+    {
+        std::vector<Player *> *players = _server->getPlayers();
+        Personnage::skin skins[] = {Personnage ::toto, Personnage::titi};
+        for (int j = 0; j < players->size(); j++)
+        {
+            Personnage *p = new Personnage(_player,_level, skins[j]);
+            _characterList.push_back(p);
+        }
+        std::cout << "nb Personnage : " << _characterList.size();
+        std::cout << ", nb Joueur : " << _server->getPlayers()->size() << std::endl;
+        _allowingMovement = true;
+    }*/
 
-        //!------------------------------------------------------------------------------------------------------------
-            
+     std::cout << "dans run " << std::endl;
+    while (!_exit )
+    { 
+  
+  
         HandleEvents(event); 
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);
         clock.restart();
         Draw(); // Fonction pour dessiner les personnages la carte.
     }
-
-    return _exit;
+    std::cout << "attente du join " << std::endl;
+    /*if(_gameServer->joinable())
+    {
+        std::cout << "joignable " << std::endl;
+        _gameServer->join();
+    }
+    std::cout << "join fait " << std::endl;*/
+    return _exitToMenu;
 }
 
 void Partie::HandleEvents(sf::Event event)
 {
     while (_window->pollEvent(event)) {
           
-            if(event.type == sf::Event::Closed){
+            if(event.type == sf::Event::Closed ){
                 //_exit = 1;
-                delete _server;
-                delete _player;
                 for (Personnage *charchater : _characterList)
                 {
                     charchater->getOwner()->getSocket()->disconnect();
                 }
-                exit(1);
+               _exit = true;
+               _exitToMenu = false;
+               break;
             } 
+
             for(Personnage * charchater : _characterList) 
                 charchater->actions(event, _allowingMovement);
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Delete))
             {
-                _exit = 2;
+                _exitToMenu = true;
             }
     }
 }

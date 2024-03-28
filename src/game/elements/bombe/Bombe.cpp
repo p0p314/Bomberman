@@ -18,7 +18,14 @@ Bombe::Bombe( Personnage& proprietaire) : _owner(proprietaire)
     }
 
 }
-
+Bombe::~Bombe()
+{
+    if(!_fire_Rays.empty())
+    {
+        for(Ray * ray : _fire_Rays)
+            delete ray;
+    }
+}
 int Bombe::loadBomb(std::string lien){
     _texture.loadFromFile(lien);
     _sprite.setTexture(_texture);
@@ -52,11 +59,7 @@ void Bombe::Update(float dt)
             _posFireSpriteAnimation++;
             for(Ray * ray : _fire_Rays)
                 ray->updateRect(_posFireSpriteAnimation);
-                /*_fireRays.at(i).setTextureRect(sf::IntRect(_posFireSpriteAnimation * _fireSpriteWidth,
-                                                           i*_fireSpriteHeight,
-                                                           _fireSpriteWidth,
-                                                           _fireSpriteHeight));
-                */
+               
             _elapsedTimeFireAnim = 0.f;
         }
 

@@ -7,15 +7,19 @@ Player::Player(){
    
 }
 
-
-
-void Player::setIp(sf::IpAddress remoteIp)
-{
-    _IP = remoteIp;
+Player::Player(sf::TcpSocket * socket, sf::IpAddress IPadress){
+    _client = socket;
+    _remoteIP = IPadress;
+    
+   
 }
+
+Player::~Player(){}
+
+
 sf::IpAddress Player::getPublicIP()
 {
-    return _IP;                //!Travailler avec publicAdress quand plusieurs joueurs
+    return _remoteIP;                //!Travailler avec publicAdress quand plusieurs joueurs
 }
 
 void Player::setID(sf::Uint16 id)
@@ -29,9 +33,9 @@ sf::Uint16 Player::getID()
 }
 bool Player::isOwner()
 {
-    std::cout << _IP << " | " << sf::IpAddress::getPublicAddress() <<std::endl;
+    std::cout << _remoteIP << " | " << sf::IpAddress::getPublicAddress() <<std::endl;
     
-    if(_IP ==  sf::IpAddress::getPublicAddress() ) return true; 
+    if(_remoteIP ==  sf::IpAddress::getPublicAddress() ) return true; 
     else return false;
             
 }

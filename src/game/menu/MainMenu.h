@@ -14,10 +14,7 @@ using namespace sf;
 class MainMenu
 {
 public:
-    Text mainMenu[Max_main_menu];
-    Texture Menu;
-    Sprite MenuI;
-    Event event;
+   
     MainMenu(float width, float height);
     void MoveUp();
     void MoveDown();
@@ -26,19 +23,25 @@ public:
     {
         return MainMenuSelected;
     }
-    int _exit;
+    bool _exit;
     bool update();
     bool jeu = false;
     void draw();
     void HandleEvents();
     ~MainMenu();
     void Run();
-    RenderWindow *_windowM;
 
 private:
-    Player *joueur;
+    RenderWindow *_windowM;
+    Player *player;
     int MainMenuSelected;
     Font font;
+
+    Text mainMenu[Max_main_menu];
+    Texture Menu;
+    Sprite MenuI;
+    Event event;
 };
+
 
 #endif // BOMBERMAN_MAINMENU_H

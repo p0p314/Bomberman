@@ -44,6 +44,7 @@ public :
 
     Bombe( Personnage& proprietaire);
     Bombe() = delete ; 
+    ~Bombe();
     bool plant(Monde *);
 
     void setVisibility(bool);

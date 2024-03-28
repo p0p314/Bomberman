@@ -24,6 +24,7 @@ class Monde
 
 public:
     Monde();
+    ~Monde();
     void initialisation();
 
     bool isColision(Personnage* elm);
