@@ -1,6 +1,6 @@
 #include "Lobby.hpp"
 
-Lobby::Lobby(sf::RenderWindow * window, Server * server) : _window(window), _server(server)
+Lobby::Lobby(sf::RenderWindow * window) : _window(window)
 {
     _windowWidth = _window->getSize().x;
     _windowHeight =  _window->getSize().y;
@@ -23,20 +23,21 @@ bool Lobby::Run()
     sf::Clock timer;
     sf::Event event;
 
-    while (!_exit && _server->getPlayers()->size() < 2){
+    /*while (!_exit && _server->getPlayers()->size() < 2){
         int dt = timer.getElapsedTime().asSeconds();       
         HandleEvent(event);
         Update(dt);
         Draw();
         if(dt >= 4)timer.restart();
         
-    } 
+    } */
     return _exit;
 }
 
 void Lobby::Update(int dt)
 {
-     for(int i = 0; i < 4;  i++){
+     for(int i = 0; i < 4;  i++)
+     {
         if(dt >= i  && dt < (i+1) ) _loadingPoints.at(i).setFillColor(sf::Color::Green);
         else  _loadingPoints.at(i).setFillColor(sf::Color::White);
      }

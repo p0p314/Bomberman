@@ -5,15 +5,14 @@ Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), 
     int i;
     _player = creator;
     _creator = true;
-    _server = new Server();
+   // _server = new Server();
     
-    startServer();          //!ajouter liste de joueurs
+    //startServer();          //!ajouter liste de joueurs
     
-    _lobby = new Lobby(_window, _server);
+    _lobby = new Lobby(_window);
     if((_exit = _lobby->Run()))
     {
         _exitToMenu = _lobby->getExitToMenu();   
-        _server->close();
         return;
     }
   
@@ -35,7 +34,6 @@ Partie::Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server)
 Partie::~Partie()
 {
     delete _level;
-    delete _server;
     if(!_characterList.empty())
         for(Personnage * character : _characterList)
             delete character;
@@ -46,7 +44,7 @@ Partie::~Partie()
 
 void Partie::startServer()
 {
-    _gameServer = new std::thread(&Server::listen, _server, _server->getPlayers(), _mutex);
+   // _gameServer = new std::thread(&Server::listen, _server, _server->getPlayers(), _mutex);
 
 }
 
@@ -98,12 +96,12 @@ int Partie::Run() // Méthode appeler par le menu lorsque le joueur rejoint une 
         Draw(); // Fonction pour dessiner les personnages la carte.
     }
     std::cout << "attente du join " << std::endl;
-    if(_gameServer->joinable())
+    /*if(_gameServer->joinable())
     {
         std::cout << "joignable " << std::endl;
         _gameServer->join();
     }
-    std::cout << "join fait " << std::endl;
+    std::cout << "join fait " << std::endl;*/
     return _exitToMenu;
 }
 
@@ -119,7 +117,6 @@ void Partie::HandleEvents(sf::Event event)
                 }
                _exit = true;
                _exitToMenu = false;
-               _server->close();
                break;
             } 
 

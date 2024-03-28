@@ -4,12 +4,11 @@
 #include "../server/Server.hpp"
 #include <iostream>
 
-class Server;
 
 class Lobby 
 {
     public : 
-        Lobby(sf::RenderWindow * window, Server * server);
+        Lobby(sf::RenderWindow * window);
         bool Run(),
              getExitToMenu();
 
@@ -20,7 +19,6 @@ class Lobby
         sf::RenderWindow * _window;
         int _windowWidth,
             _windowHeight;
-        Server * _server;
 
         std::vector<sf::CircleShape> _loadingPoints;
        

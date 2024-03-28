@@ -8,7 +8,7 @@ class Player
 {
    private :
     sf::TcpSocket * _client;
-    sf::IpAddress _IP;
+    sf::IpAddress _remoteIP;
     sf::Uint16 _ID;
    
     
@@ -16,6 +16,7 @@ class Player
                _senderOfPacket;
     public : 
         Player();
+        Player(sf::TcpSocket * clientSocket, sf::IpAddress);
         ~Player();
         bool joinAGame();
         sf::IpAddress getPublicIP();
