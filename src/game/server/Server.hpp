@@ -71,7 +71,7 @@ private:
 
     sf::Uint8 _playerType = 0,
               _maxPlayers = 1,
-              _minPlayers = 1,
+              _minPlayers = 2,
               _packetType,
               _actionType;
 

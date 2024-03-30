@@ -68,7 +68,7 @@ void Player::getPacket()
 bool Player::joinAGame()
 {
 
-        if(_client->connect(sf::IpAddress("127.0.0.1"), 2000) == sf::Socket::Done)
+        if(_client->connect(sf::IpAddress("176.143.129.142"), 2000) == sf::Socket::Done)
         {  
             std::cout << "player : connexion reussi" <<  std::endl;
             return true;
