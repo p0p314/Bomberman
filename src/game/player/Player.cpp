@@ -72,8 +72,8 @@ bool Player::joinAGame()
         {  
             std::cout << "player : connexion reussi" <<  std::endl;
             return true;
-        } else std::cout << "player : connexion echouee" <<  std::endl;
-
+        } 
+        std::cout << "player : connexion echouee" <<  std::endl;
         return false;
     
 }
@@ -88,7 +88,9 @@ sf::Uint8 Player::getDirFromPacket()
     return _dirFromPacket;
 }
 
-void Player::signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers)
+
+
+bool Player::signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers)
 {
     sf::Packet  packet;
     sf::Uint8 newPlayer = 0;
@@ -96,11 +98,12 @@ void Player::signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers)
     if(_client->send(packet) == sf::Socket::Done)
     {
         std::cout << "Arrivee signalee" <<  std::endl;
+        return true;
     }
     else 
     {
-    
         std::cout << "signal arrivee echoue" << std::endl; 
+        return false;
     }
     
 }

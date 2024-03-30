@@ -79,7 +79,7 @@ void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
         
         if (MainMenuSelected == 0 && sf::Keyboard::isKeyPressed(Keyboard::Enter))
         {
-            Partie *partie = new Partie(_windowM, player, sf::IpAddress("127.0.0.1")); // Rejoindre partie;
+            Partie *partie = new Partie(_windowM, player, sf::Uint8(1)); // Rejoindre partie;
             _exit = !partie->Run();
         }
         if (MainMenuSelected == 1 && sf::Keyboard::isKeyPressed(Keyboard::Enter))

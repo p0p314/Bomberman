@@ -19,41 +19,40 @@ class Partie
     private: 
         sf::Uint8 _numberOfPlayer = 0,
                   _typeOfPacket,
-                  _playerDisconnected;
+                  _playerDisconnected,
+                  _startGame;
         
+        bool _synchronised;
         std::string _errorMessage;
 
+
         sf::RenderWindow * _window;
-        std::string _codeGame;
-        Server * _server;
         Monde *_level; 
         Player * _player;
-        std::mutex * _mutex;
-        std::vector<std::pair<Player*, Personnage*>> * _playerList;
-        std::vector<Personnage*> _characterList;
-        std::thread * _gameServer;
         Lobby * _lobby;
+        
+        std::vector<Personnage*> _characterList;
     
         bool _allowingMovement = false,
              _exit = false,
-             _exitToMenu = true,
-             _creator = false;
+             _exitToMenu = true;
 
+        void returnToMenu();
+        void checkRecievedPacket();
         void disconnectFromServer();
+        void synchronisation();
         void HandleEvents(sf::Event);
         void Update(float dt);
         void Draw();
 
     public: 
         Partie() = delete;
-        Partie(sf::RenderWindow * window, Player * creator);
+        Partie(sf::RenderWindow * window, Player * joiner, sf::Uint8 typeOfplayer = 0);
         Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server);
         ~Partie();
 
         std::vector<Personnage*> getCharacterList();
         Monde * getLevel();
-        void startServer();
-        
         int Run(); 
         
 

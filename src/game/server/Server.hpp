@@ -79,7 +79,7 @@ private:
                 _packetContentError = "Erreur dans les donnee du paquet",
                 _packetTypeError = "Le type de paquet n'est pas reconnu";
     
-    
+    int _cptListReady = 0;
 
     bool _serverOpen = true,
          _endOfGame = false,

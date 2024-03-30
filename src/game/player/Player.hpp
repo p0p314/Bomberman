@@ -28,8 +28,7 @@ class Player
         void setSocket(sf::TcpSocket*);
         
         bool joinAGame();
-
-        void signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers = 0);
+        bool signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers = 0);
         void listReady();
         void action(sf::Uint8 typeOfAction);
         void quiteGame();
@@ -39,6 +38,10 @@ class Player
     sf::IpAddress _remoteIP;
     sf::Uint8 _ID;
    
+   sf::Uint8 _numberOfPlayer = 0,
+             _typeOfPacket,
+             _playerDisconnected,
+             _startGame;
     
     sf::Uint8 _dirFromPacket,
                _senderOfPacket;

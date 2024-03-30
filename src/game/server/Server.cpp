@@ -174,15 +174,29 @@ void Server::checkPacketFromPlayers()
                     if(_packetType == quiteGame)
                         clientDisconnect(client, it); 
 
-                    if(_packetType == action )
+                    else if(_packetType == action )
                     {
                         packet >> _actionType;
                         
                         packet.clear();
-                        packet << _packetType << _actionType;
+                        packet << _packetType << _actionType; //!!!!Ajouter identification du joueur
                         for(std::pair  player : *_playerList)
                             player.first->getSocket()->send(packet);
+                    } 
+                    else if(_packetType == listReady )
+                    {
+                        _cptListReady++;
+                        if(_cptListReady == _maxPlayers)
+                        {
+                            sf::Packet packet;
+                            packet << startGame;
+                            sf::sleep(sf::milliseconds(500));
+                            for(auto & player : *_playerList)
+                                player.first->getSocket()->send(packet);
+                        }
                     }
+                            
+
                 }
                 break;
 
@@ -253,6 +267,7 @@ void Server::clientDisconnect(std::pair<Player*,sf::Uint8> client, std::vector<s
         _inLobby = false;
         _endOfGame = true;
         _maxPlayers = 1;
+        _cptListReady = 0;
     } 
     else
     {
@@ -261,6 +276,7 @@ void Server::clientDisconnect(std::pair<Player*,sf::Uint8> client, std::vector<s
         clientSocket->disconnect();
         _playerList->erase(it);                                                       
         _selector.remove(*clientSocket);
+        _cptListReady--;
     }
 }
 int main(int argc, char const *argv[])
