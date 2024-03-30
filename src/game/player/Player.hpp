@@ -1,36 +1,45 @@
 #pragma once
 
 #include "../elements/personnage/Personnage.hpp"
-#include "../server/Server.hpp"
+#include "../server/Server.hpp" 
 #include <SFML/Graphics.hpp>
 
 class Player
 {
-   private :
-    sf::TcpSocket * _client;
-    sf::IpAddress _remoteIP;
-    sf::Uint16 _ID;
-   
-    
-    sf::Uint16 _dirFromPacket,
-               _senderOfPacket;
+  
     public : 
+
         Player();
         Player(sf::TcpSocket * clientSocket, sf::IpAddress);
         ~Player();
-        bool joinAGame();
+        
         sf::IpAddress getPublicIP();
-        void setIp(sf::IpAddress);
+        
         bool isOwner();
-        void addEvent(sf::Uint16 id, sf::Uint16 type);
 
         void getPacket();
-        sf::Uint16 getSenderOfPacket();
-        sf::Uint16 getDirFromPacket();
+        sf::Uint8 getSenderOfPacket();
+        sf::Uint8 getDirFromPacket();
         
-        sf::Uint16 getID();
-        void setID(sf::Uint16);
+        sf::Uint8 getID();
+        void setID(sf::Uint8);
 
         sf::TcpSocket * getSocket() ;
         void setSocket(sf::TcpSocket*);
+        
+        bool joinAGame();
+
+        void signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers = 0);
+        void listReady();
+        void action(sf::Uint8 typeOfAction);
+        void quiteGame();
+
+ private :
+    sf::TcpSocket * _client;
+    sf::IpAddress _remoteIP;
+    sf::Uint8 _ID;
+   
+    
+    sf::Uint8 _dirFromPacket,
+               _senderOfPacket;
 };

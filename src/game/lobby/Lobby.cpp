@@ -1,6 +1,7 @@
 #include "Lobby.hpp"
 
-Lobby::Lobby(sf::RenderWindow * window) : _window(window)
+Lobby::Lobby(sf::RenderWindow * window, Player *player, sf::Uint8 &numberOfPlayer) : 
+    _window(window), _player(player), _numberOfPlayers(numberOfPlayer)
 {
     _windowWidth = _window->getSize().x;
     _windowHeight =  _window->getSize().y;
@@ -23,14 +24,17 @@ bool Lobby::Run()
     sf::Clock timer;
     sf::Event event;
 
-    /*while (!_exit && _server->getPlayers()->size() < 2){
+    
+
+    
+    while (!_exit && !_allPlayersPresent ){
         int dt = timer.getElapsedTime().asSeconds();       
         HandleEvent(event);
         Update(dt);
         Draw();
         if(dt >= 4)timer.restart();
         
-    } */
+    } 
     return _exit;
 }
 
@@ -41,6 +45,30 @@ void Lobby::Update(int dt)
         if(dt >= i  && dt < (i+1) ) _loadingPoints.at(i).setFillColor(sf::Color::Green);
         else  _loadingPoints.at(i).setFillColor(sf::Color::White);
      }
+
+
+    if(_player->getSocket()->receive(_packet) == sf::Socket::Done)
+    {
+        std::cout << "paquet recu : ";
+        if(_packet >> _typeOfPacket )
+        {
+            if(_typeOfPacket == static_cast<sf::Uint8>(1))
+            {
+                _packet >> _numberOfPlayers;
+                std::cout << "nombre de joueurs en attente --> " << _numberOfPlayers << std::endl;
+           
+            } else if(_typeOfPacket == static_cast<sf::Uint8>(2) )
+            {
+                _allPlayersPresent = true;
+                _packet >> _numberOfPlayers;
+                std::cout << "Tout le monde present, nombre de joueurs -->" << static_cast<int>(_numberOfPlayers) << std::endl;
+           
+            } else std::cout << "packet non pris en charge"  << std::endl;
+       
+        } else std::cout << "erreur format du paquet --> " << static_cast<int>(_typeOfPacket)<<std::endl; 
+    }
+
+  
 }
 void Lobby::Draw()
 {

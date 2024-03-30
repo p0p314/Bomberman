@@ -41,7 +41,7 @@ public :
     void updateCollisionZone();
     void actions(sf::Event, bool allowingMovement);
 
-    bool owner(sf::Uint16 id);
+    bool owner(sf::Uint8 id);
     Player * getOwner();
     void Update(float dt);
     void updateAnimation();
