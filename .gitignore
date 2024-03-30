@@ -1,3 +1,17 @@
 /build
 /.vscode
 /.gitignore
+Partie.o
+Monde.o
+MainMenu.o
+Lobby.o
+main.o
+Graphics.o
+element.o
+Bombe.o
+app
+Personnage.o
+Player.o
+Server.o
+Ray.o
+TileMap.o
