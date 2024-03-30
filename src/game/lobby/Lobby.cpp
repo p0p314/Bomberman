@@ -23,14 +23,15 @@ bool Lobby::Run()
     sf::Clock timer;
     sf::Event event;
 
-    /*while (!_exit && _server->getPlayers()->size() < 2){
-        int dt = timer.getElapsedTime().asSeconds();       
+    while (!_exit /*_server->getPlayers()->size() < 2*/)
+    {
+        int dt = timer.getElapsedTime().asSeconds();
         HandleEvent(event);
         Update(dt);
         Draw();
-        if(dt >= 4)timer.restart();
-        
-    } */
+        if (dt >= 4)
+            timer.restart();
+    }
     return _exit;
 }
 

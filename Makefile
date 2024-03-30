@@ -10,8 +10,8 @@ compile:./src/main.cpp
 	g++ -c src/game/elements/bombe/Ray.cpp
 	g++ -c src/game/elements/personnage/Personnage.cpp
 	g++ -c src/game/player/Player.cpp
-	g++ -c src/game/server/Server.cpp
-	g++ Graphics.o Partie.o element.o Player.o Server.o MainMenu.o Bombe.o Personnage.o Ray.o TileMap.o Monde.o main.o  -o app -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
+	g++ -c src/game/lobby/Lobby.cpp
+	g++ Graphics.o Partie.o element.o Lobby.o Player.o MainMenu.o Bombe.o Personnage.o Ray.o TileMap.o Monde.o main.o  -o app -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
 	make clean
 
 run:

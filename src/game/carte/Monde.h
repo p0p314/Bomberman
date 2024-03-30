@@ -15,10 +15,8 @@ class Monde
  private:   
     sf::Texture _wall, _grass, _box, _brick;
     int gridLength;
-    
     void setUpInitialState();
     void setUpTiles();
-
     std::vector<std::pair<Personnage*,Bombe*>> _bombList;
     std::vector<std::vector<TileMap *>> _tiles;
 
@@ -26,11 +24,9 @@ public:
     Monde();
     ~Monde();
     void initialisation();
-
     bool isColision(Personnage* elm);
-    void isDestroyed(Bombe bombe); 
-    void destroy(sf::Texture newTexture ,int posI, int posJ);
-
+    void isDestroyed(Bombe bombe);
+    void destroy(sf::Texture newTexture, int posI, int posJ);
     int getGridLength();
 
     std::vector<std::vector<TileMap*>>& getTiles();
