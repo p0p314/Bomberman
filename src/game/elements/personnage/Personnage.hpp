@@ -62,7 +62,7 @@ private :
     int _spriteWidth = 16,
         _spriteHeight = 24;
 
-    int _speed = 2;
+    int _speed = 15;
     bool _moving = false;
     bool _bombInHand = true;
 
@@ -73,6 +73,7 @@ private :
     bool _alive = true;
     bool _dying = false;
 
+   
     int _posSpriteDeathAnimation = 1;
     sf::Vector2i _posSpriteAnimation;
     

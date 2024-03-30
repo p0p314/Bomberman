@@ -78,11 +78,14 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
     while (!_exit )
     { 
         synchronisation();
-        HandleEvents(event); 
-        float dt = clock.getElapsedTime().asSeconds();
-        checkRecievedPacket(dt);
-        //Update(dt);
-        clock.restart();
+        if(_synchronised)
+        {
+            HandleEvents(event); 
+            float dt = clock.getElapsedTime().asSeconds();
+            if(!checkRecievedPacket(dt));
+                Update(dt);
+            clock.restart();
+        }
         Draw(); 
     }
     _player->quiteGame();
@@ -96,63 +99,65 @@ void Partie::returnToMenu()
     _exitToMenu = true;
 }
 
-void Partie::checkRecievedPacket(float dt)
+bool Partie::checkRecievedPacket(float dt)
 {
     sf::Packet packet;
-        if(_player->getSocket()->receive(packet) == sf::Socket::Done)
+    if(_player->getSocket()->receive(packet) == sf::Socket::Done)
+    {
+        std::cout << "paquet recu ";
+        if(packet >> _typeOfPacket)
         {
-            std::cout << "paquet recu ";
-            if(packet >> _typeOfPacket)
+            std::cout << static_cast<int>(_typeOfPacket)<< " --> ";
+            if(_typeOfPacket == static_cast<sf::Uint8>(1)) //accepté dans lobby
             {
-                std::cout << static_cast<int>(_typeOfPacket)<< " --> ";
-                if(_typeOfPacket == static_cast<sf::Uint8>(1)) //accepté dans lobby
+                _player->getSocket()->setBlocking(false);
+                packet >> _numberOfPlayer;
+                packet >> _idPlayer;
+                std::cout << "nombre de joueurs : "<< static_cast<int>(_numberOfPlayer) <<std::endl;
+                
+                _player->setID(_idPlayer);
+                std::cout<< "id du joueur :"<<static_cast<int>(_player->getID()) << std::endl;
+                _lobby = new Lobby(_window, _player, _numberOfPlayer);
+                if((_exit = _lobby->Run()))
                 {
-                    _player->getSocket()->setBlocking(false);
-                    packet >> _numberOfPlayer;
-                    packet >> _idPlayer;
-                    std::cout << "nombre de joueurs : "<< static_cast<int>(_numberOfPlayer) <<std::endl;
+                    _exitToMenu = _lobby->getExitToMenu();   
+                    return false;
+                }
+            }  //Si deconnexion ou erreur
+            else if(_typeOfPacket == static_cast<sf::Uint8>(6) || _typeOfPacket == static_cast<sf::Uint8>(7))
+            {
+                //!Afficher un message d'erreur au client
+                if(_typeOfPacket == static_cast<sf::Uint8>(7))
+                {
+                    packet >> _errorMessage;
+                    std::cout << "erreur : " << _errorMessage << std::endl;
+                }
+                else
+                {
+                    packet >> _playerDisconnected;
+                    std::cout << "deconnexion : " << _playerDisconnected <<std::endl;
+                }
+                _exit = true;
+                _exitToMenu = true;
+                return false;
+            } 
+            else if(_typeOfPacket == static_cast<sf::Uint8>(5)) //! Action de jeu
+            {
+                packet >> _idSender;
+                packet >> _action;
+                std::cout<< "idSender ::: " << static_cast<int>(_idSender) <<std::endl; 
+                for(Personnage * charchater : _characterList)
+                    if(charchater->getSkin() == static_cast<int>(_idSender))
+                    {
+                        charchater->Update(dt, static_cast<int>(_action));
+                        return true;
+                    }                   
                     
-                    _player->setID(_idPlayer);
-                    std::cout<< "id du joueur :"<<static_cast<int>(_player->getID()) << std::endl;
-                    _lobby = new Lobby(_window, _player, _numberOfPlayer);
-                    if((_exit = _lobby->Run()))
-                    {
-                        _exitToMenu = _lobby->getExitToMenu();   
-                        return;
-                    }
-                }  //Si deconnexion ou erreur
-                else if(_typeOfPacket == static_cast<sf::Uint8>(6) || _typeOfPacket == static_cast<sf::Uint8>(7))
-                {
-                    //!Afficher un message d'erreur au client
-                    if(_typeOfPacket == static_cast<sf::Uint8>(7))
-                    {
-                        packet >> _errorMessage;
-                        std::cout << "erreur : " << _errorMessage << std::endl;
-                    }
-                    else
-                    {
-                        packet >> _playerDisconnected;
-                        std::cout << "deconnexion : " << _playerDisconnected <<std::endl;
-                    }
-
-                    _exit = true;
-                    _exitToMenu = true;
-                } 
-                else if(_typeOfPacket == static_cast<sf::Uint8>(5)) //! Action de jeu
-                {
-                    packet >> _idSender;
-                    packet >> _action;
-                    std::cout<< "idSender ::: " << static_cast<int>(_idSender) <<std::endl; 
-                    for(Personnage * charchater : _characterList)
-                        if(charchater->getSkin() == static_cast<int>(_idSender))                   
-                            charchater->Update(dt, static_cast<int>(_action));
-                        
-                     
-
-                }else  std::cout <<"Type de paquet non pris en charge" << std::endl;
-            } else std::cout <<"Erreur format du paquet" << std::endl;
-        } 
-
+                 
+            }else  std::cout <<"Type de paquet non pris en charge" << std::endl;
+        } else std::cout <<"Erreur format du paquet" << std::endl;
+    } else return false;
+    return false;
 }
 
 void Partie::synchronisation()
@@ -173,8 +178,8 @@ void Partie::synchronisation()
                         
                     }//!Afficher le compteur sur l'ecran de jeu
                      std::cout << "jouer" << std::endl;
-                        _synchronised = true;
-                        _allowingMovement = true;
+                    _synchronised = true;
+                    _allowingMovement = true;
                 }
         }
     }
@@ -189,9 +194,9 @@ void Partie::HandleEvents(sf::Event event)
                _exitToMenu = false;
                break;
             } 
-
-            for(Personnage * charchater : _characterList) 
-                charchater->actions(event, _allowingMovement);
+            if(_synchronised)
+                for(Personnage * charchater : _characterList) 
+                    charchater->actions(event, _allowingMovement);
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Delete))
             {

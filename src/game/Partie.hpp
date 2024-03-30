@@ -41,7 +41,7 @@ class Partie
              _exitToMenu = true;
 
         void returnToMenu();
-        void checkRecievedPacket(float dt = 0);
+        bool checkRecievedPacket(float dt = 0);
         void disconnectFromServer();
         void synchronisation();
         void HandleEvents(sf::Event);

@@ -131,21 +131,13 @@ void Server::run()
                                 }
                             } 
                             else delete client;
-
                         }              
                         checkPacketFromPlayers();                    
                     }
-                }
-
-                
-                
+                }                  
             }
-
             while(!_endOfGame)
-            {
-                checkPacketFromPlayers();
-            }
-            //!Gerer les evenements de SYNC et de partie
+                checkPacketFromPlayers();         
         }
     }
 }
@@ -196,7 +188,7 @@ void Server::checkPacketFromPlayers()
                             for(auto & player : *_playerList)
                                 player.first->getSocket()->send(packet);
                         }  
-                    }else std::cout<< static_cast<int>(_packetType) << std::endl;
+                    } else std::cout<< static_cast<int>(_packetType) << std::endl;
                             
                 }
                 break;
@@ -206,7 +198,7 @@ void Server::checkPacketFromPlayers()
                 break;
                 
             case sf::Socket::Error : 
-                std::cout <<"erreur avec les client" << client.second <<std::endl;
+                std::cout <<"erreur avec le client" << client.second <<std::endl;
                 break;
 
             default:
@@ -288,6 +280,7 @@ int main(int argc, char const *argv[])
 {
     Server * server = new Server();
     server->run();
+    std::cout<<"fin" <<std::endl;
     return 0;
 }
 

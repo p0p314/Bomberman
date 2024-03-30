@@ -20,11 +20,7 @@ Bombe::Bombe( Personnage& proprietaire) : _owner(proprietaire)
 }
 Bombe::~Bombe()
 {
-    if(!_fire_Rays.empty())
-    {
-        for(Ray * ray : _fire_Rays)
-            delete ray;
-    }
+    
 }
 int Bombe::loadBomb(std::string lien){
     _texture.loadFromFile(lien);
@@ -46,16 +42,16 @@ std::vector<Ray*> Bombe::get_Rays()
 void Bombe::Update(float dt)
 {
     _elapsedTime += dt;
-   // std::cout << "\t bombe -> visibilite : "<< _visibleBomb << std::endl;
-   // std::cout << "\t bombe -> temps ecoule : "<< _elapsedTime << std::endl;
+    std::cout << "\t bombe -> visibilite : "<< _visibleBomb << std::endl;
+    std::cout << "\t bombe -> temps ecoule : "<< _elapsedTime << std::endl;
 
     //!Gerer animation bombe
     if(_visibleBomb && _elapsedTime >= _timeBeforeExplosion ){
         setFireVisibility(true);
          _elapsedTimeFireAnim += dt;
-       // std::cout << "\t flammes visible"  << std::endl;
+        std::cout << "\t flammes visible"  << std::endl;
         if(_posFireSpriteAnimation <4 && _elapsedTimeFireAnim >= _timeToChangeFrame){
-
+            std::cout << "\t condition ok"  << std::endl;
             _posFireSpriteAnimation++;
             for(Ray * ray : _fire_Rays)
                 ray->updateRect(_posFireSpriteAnimation);
@@ -64,9 +60,9 @@ void Bombe::Update(float dt)
         }
 
     }
-
+    std::cout << "\t ouuuuh "  << std::endl;
     if(_visibleFire && _elapsedTime >= _timeEndOfExplosion){
-       // std::cout << "\t Bombe explosée : invisible"  << std::endl;
+        std::cout << "\t Bombe explosée : invisible"  << std::endl;
         setVisibility(false);
         setFireVisibility(false);
         setExploded(true);
@@ -93,7 +89,7 @@ bool Bombe::isFireVisible()
 
 int Bombe::loadFire(){   
     _fireTexture.loadFromFile("assets/fire_all.png");
-
+   
     Ray::orientation orientations[] = { Ray::center, Ray::up, Ray::right, Ray::down, Ray::left };
     for(int i = 0; i < 5; i++){
         Ray * ray = new Ray(_fireTexture, orientations[i]);

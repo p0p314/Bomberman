@@ -34,7 +34,7 @@ public:
 private:
     RenderWindow *_windowM;
     Player *player;
-    int MainMenuSelected;
+    int MainMenuSelected = 0;
     Font font;
 
     Text mainMenu[Max_main_menu];

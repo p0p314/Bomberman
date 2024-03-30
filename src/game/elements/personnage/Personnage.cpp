@@ -1,7 +1,3 @@
-//
-// Created by raximex on 28/01/24.
-//
-
 #include "Personnage.hpp"
 
 
@@ -144,29 +140,20 @@ void Personnage::move(Dir dir)
 
 void Personnage::actions(sf::Event event, bool allowingMovement)
 {   
-        if(allowingMovement && !_dying){        
+        if(allowingMovement && !_dying){  
 
-            if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z))) _player->action(sf::Uint8(1));
-        
-            if((sf::Keyboard::isKeyPressed(sf::Keyboard::D)))_player->action(sf::Uint8(2)); 
-
-         
-            if((sf::Keyboard::isKeyPressed(sf::Keyboard::S)) ) _player->action(sf::Uint8(3));
-
-         
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) _player->action(sf::Uint8(4));
-           
+            if(event.type == sf::Event::KeyReleased)
+            {
+                if(event.key.code == sf::Keyboard::Z) _player->action(sf::Uint8(1));
+                if(event.key.code == sf::Keyboard::D) _player->action(sf::Uint8(2)); 
+                if(event.key.code == sf::Keyboard::S) _player->action(sf::Uint8(3));  
+                if(event.key.code == sf::Keyboard::Q) _player->action(sf::Uint8(4));
+            }      
+            
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) _player->action(sf::Uint8(0));
-            /*if ((sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) || _player->dirFromPacket() == 0) { 
-                if(getBombe().plant(_level)){
-                    getBombe().setVisibility(true);
-                    _bombInHand = false;
-                    _level->getBombList().push_back(std::make_pair(this,&getBombe()));
-                    _player->addEvent(_name,sf::Uint8(0));
-                } 
-
-            }*/
+        
         }
+    
 }
 
 
@@ -174,6 +161,7 @@ Personnage::skin Personnage::getSkin()
 {
     return _skin;
 }
+
 void Personnage::Update(float dt, int dirFromPacket)
 {
     _elapsedTime += dt;
@@ -196,7 +184,7 @@ void Personnage::Update(float dt, int dirFromPacket)
         else if(dirFromPacket == 4) move(Left);
     }  else _moving = false;
     
-    
+    dirFromPacket = 10; //!  = Aucune action
     //!Gestion animation de déplacement
     if(_elapsedTime > _timeToChangeFrame)
     {
@@ -214,13 +202,13 @@ void Personnage::Update(float dt, int dirFromPacket)
     //!Gestion bombe      
     if(!_bombInHand)
     {   
-       // std::cout << "bombe posee " << std::endl;
+        std::cout << "bombe posee " << std::endl;
         _bomb.Update(dt);
         if(_bomb.isFireVisible())
             _level->isDestroyed(_bomb);    
           
         if(_bomb.isExploded()){
-           // std::cout << "Recuperation bombe " << std::endl;
+            std::cout << "Recuperation bombe " << std::endl;
             _bombInHand = true;
             _bomb.setExploded(false);
             auto posBombInList = std::find(_level->getBombList().begin(),  _level->getBombList().end(), 
