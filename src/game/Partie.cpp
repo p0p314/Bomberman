@@ -30,7 +30,7 @@ Partie::Partie(sf::RenderWindow * window, Player * player, sf::Uint8 typeOfPlaye
                 }
             }
         }
-    else returnToMenu();   
+    else returnToMenu();  
 }
 
 

@@ -68,7 +68,7 @@ private:
     sf::SocketSelector _selector;
     std::vector<std::pair<Player*,sf::Uint8>>* _playerList;
 
-    sf::Uint8 _idPlayer = 1,
+    sf::Uint8 _idPlayer = 0,
               _playerType = 0,
               _maxPlayers = 1,
               _minPlayers = 2,

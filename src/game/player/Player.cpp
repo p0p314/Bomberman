@@ -1,6 +1,8 @@
 #include "Player.hpp"
 
-Player::Player(){ }
+Player::Player(){
+    _client = new sf::TcpSocket();
+ }
 
 Player::Player(sf::TcpSocket * socket, sf::IpAddress IPadress){
     _client = socket;
