@@ -63,12 +63,13 @@ class Server
 private: 
     sf::TcpListener _listener;
    
-    sf::Uint8 _idHost;
+    sf::Uint8 _idHost = 0;
                
     sf::SocketSelector _selector;
     std::vector<std::pair<Player*,sf::Uint8>>* _playerList;
 
     sf::Uint8 _idPlayer = 0,
+              _idSender,
               _playerType = 0,
               _maxPlayers = 1,
               _minPlayers = 2,

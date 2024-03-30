@@ -29,6 +29,7 @@ void Server::run()
         _selector.add(_listener);
         _endOfGame = false;
         _inLobby = true;
+        _idPlayer = 0;
         //!Boucle de jeu
         while(!_endOfGame)
         {   
@@ -61,7 +62,8 @@ void Server::run()
                             std::cout <<"listener ready" << std::endl;
 
                             if(_listener.accept(*client) == sf::Socket::Done){
-                                std::cout<< "connexion, ok" << std::endl;
+                                std::cout<< "connexion de "<< client->getRemoteAddress() << std::endl;
+
                                 if(!_playerList->empty())
                                 {
                                     if(_playerList->size() >= _maxPlayers)
@@ -141,9 +143,7 @@ void Server::run()
 
             while(!_endOfGame)
             {
-                std::cout<<"Dans la partie " << std::endl;
                 checkPacketFromPlayers();
-                sf::sleep(sf::seconds(1));
             }
             //!Gerer les evenements de SYNC et de partie
         }
@@ -162,7 +162,7 @@ void Server::checkPacketFromPlayers()
         switch (status)
         {
             case sf::Socket::Done :
-                std::cout << "paquet recu de : " << clientSocket->getRemoteAddress() << " -->";
+                std::cout << "paquet recu de : " << clientSocket->getRemoteAddress() << " --> ";
                 if(packet >> _packetType)
                 {
                     if(_packetType == quiteGame)
@@ -170,18 +170,23 @@ void Server::checkPacketFromPlayers()
 
                     else if(_packetType == action )
                     {
-                        std::cout << "action " << std::endl;
+                        std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
+                        packet >> _idSender;
                         packet >> _actionType;
-                        
+
                         packet.clear();
-                        packet << _packetType << _actionType; //!!!!Ajouter identification du joueur
-                        for(std::pair  player : *_playerList)
-                            player.first->getSocket()->send(packet);
-                        std::cout << "action partagee a tous les joueurs";
+                        if(client.second == _idSender)
+                        {
+                            packet << _packetType << _idSender << _actionType; //!!!!Ajouter identification du joueur
+                            for(std::pair  player : *_playerList)
+                                player.first->getSocket()->send(packet);
+                            std::cout << "action partagee a tous les joueurs";
+                        }
                     } 
                     else if(_packetType == listReady )
                     {
                         _cptListReady++;
+                        std::cout << "liste prete | " << _cptListReady << " prete(s)" << std::endl;
                         if(_cptListReady == _maxPlayers)
                         {
                             std::cout << "Tous les personnagent attendent" <<std::endl;
@@ -190,10 +195,9 @@ void Server::checkPacketFromPlayers()
                             sf::sleep(sf::milliseconds(500));
                             for(auto & player : *_playerList)
                                 player.first->getSocket()->send(packet);
-                        }
-                    }
+                        }  
+                    }else std::cout<< static_cast<int>(_packetType) << std::endl;
                             
-
                 }
                 break;
 
@@ -204,12 +208,12 @@ void Server::checkPacketFromPlayers()
             case sf::Socket::Error : 
                 std::cout <<"erreur avec les client" << client.second <<std::endl;
                 break;
+
             default:
                 break;
         }
        
-                   
-            
+        it++;    
     }  
 }
 void Server::packetError(sf::TcpSocket * client, Server::errorCode code, std::string message)
@@ -232,10 +236,14 @@ void Server::newClient(sf::TcpSocket *client)
     sf::Packet packet;
     
     std::cout << "nouveau client : " << client->getRemoteAddress() << std::endl;
-    _playerList->push_back(std::pair(new Player(client, client->getRemoteAddress()),_playerType));
+    _playerList->push_back(std::pair(new Player(client, client->getRemoteAddress()),_idPlayer));
     _selector.add(*client);
-    packet << numberOfPlayer << static_cast<sf::Uint8>(_playerList->size()) << _idPlayer ;
-    //sf::sleep(sf::milliseconds(1000));
+    
+    packet << numberOfPlayer << static_cast<sf::Uint8>(_playerList->size()) << _idPlayer;
+    std::cout << "id joueur " << static_cast<int>(_idPlayer) << std::endl;
+    _idPlayer = _idPlayer + 1;
+
+    sf::sleep(sf::milliseconds(1000));
     for(std::pair  player : *_playerList)
         if(player.first->getSocket()->send(packet) == sf::Socket::Done)
             std::cout << "Nombre de joueurs envoye " << std::endl;
