@@ -2,7 +2,7 @@
 #include <iostream>
 Server::Server() : _selector()
 {
-    if (_listener.listen(2000, sf::IpAddress("127.0.0.1")) != sf::Socket::Done)
+    if (_listener.listen(2000, sf::IpAddress::getLocalAddress()) != sf::Socket::Done)
     {
         std::cout << "Impossible de creer le serveur" <<std::endl;
         exit(1);
@@ -169,6 +169,7 @@ void Server::checkPacketFromPlayers()
         switch (status)
         {
             case sf::Socket::Done :
+                std::cout << "paquet recu de : " << clientSocket->getRemoteAddress() << " -->";
                 if(packet >> _packetType)
                 {
                     if(_packetType == quiteGame)
@@ -176,18 +177,21 @@ void Server::checkPacketFromPlayers()
 
                     else if(_packetType == action )
                     {
+                        std::cout << "action " << std::endl;
                         packet >> _actionType;
                         
                         packet.clear();
                         packet << _packetType << _actionType; //!!!!Ajouter identification du joueur
                         for(std::pair  player : *_playerList)
                             player.first->getSocket()->send(packet);
+                        std::cout << "action partagee a tous les joueurs";
                     } 
                     else if(_packetType == listReady )
                     {
                         _cptListReady++;
                         if(_cptListReady == _maxPlayers)
                         {
+                            std::cout << "Tous les personnagent attendent" <<std::endl;
                             sf::Packet packet;
                             packet << startGame;
                             sf::sleep(sf::milliseconds(500));
