@@ -62,7 +62,8 @@ void Server::run()
                             std::cout <<"listener ready" << std::endl;
 
                             if(_listener.accept(*client) == sf::Socket::Done){
-                                std::cout<< "connexion, ok" << std::endl;
+                                std::cout<< "connexion de "<< client->getRemoteAddress() << std::endl;
+
                                 if(!_playerList->empty())
                                 {
                                     if(_playerList->size() >= _maxPlayers)
@@ -157,7 +158,6 @@ void Server::checkPacketFromPlayers()
         sf::Packet packet;
         std::pair client = *it;
         sf::TcpSocket * clientSocket = client.first->getSocket();
-        std::cout << "zone aa" << std::endl;
         sf::Socket::Status status = clientSocket->receive(packet);
         switch (status)
         {
@@ -170,7 +170,7 @@ void Server::checkPacketFromPlayers()
 
                     else if(_packetType == action )
                     {
-                        std::cout << "action " << std::endl;
+                        std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
                         packet >> _idSender;
                         packet >> _actionType;
 
@@ -213,7 +213,6 @@ void Server::checkPacketFromPlayers()
                 break;
         }
        
-        std::cout << "zone d" << std::endl;           
         it++;    
     }  
 }
@@ -238,10 +237,13 @@ void Server::newClient(sf::TcpSocket *client)
     
     std::cout << "nouveau client : " << client->getRemoteAddress() << std::endl;
     _playerList->push_back(std::pair(new Player(client, client->getRemoteAddress()),_idPlayer));
-    _idPlayer++;
     _selector.add(*client);
-    packet << numberOfPlayer << static_cast<sf::Uint8>(_playerList->size() << _idPlayer);
-    //sf::sleep(sf::milliseconds(1000));
+    
+    packet << numberOfPlayer << static_cast<sf::Uint8>(_playerList->size()) << _idPlayer;
+    std::cout << "id joueur " << static_cast<int>(_idPlayer) << std::endl;
+    _idPlayer = _idPlayer + 1;
+
+    sf::sleep(sf::milliseconds(1000));
     for(std::pair  player : *_playerList)
         if(player.first->getSocket()->send(packet) == sf::Socket::Done)
             std::cout << "Nombre de joueurs envoye " << std::endl;

@@ -150,7 +150,7 @@ void Partie::checkRecievedPacket(float dt)
 
                 }else  std::cout <<"Type de paquet non pris en charge" << std::endl;
             } else std::cout <<"Erreur format du paquet" << std::endl;
-        } else std::cout <<"Serveur inaccessible" << std::endl;;
+        } 
 
 }
 

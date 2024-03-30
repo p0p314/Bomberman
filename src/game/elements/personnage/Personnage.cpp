@@ -167,7 +167,6 @@ void Personnage::actions(sf::Event event, bool allowingMovement)
 
             }*/
         }
-    
 }
 
 
