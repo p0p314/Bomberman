@@ -67,9 +67,9 @@ private:
                
     sf::SocketSelector _selector;
     std::vector<std::pair<Player*,sf::Uint8>>* _playerList;
-    std::mutex* _mutex;
 
-    sf::Uint8 _playerType = 0,
+    sf::Uint8 _idPlayer = 1,
+              _playerType = 0,
               _maxPlayers = 1,
               _minPlayers = 2,
               _packetType,

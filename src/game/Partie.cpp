@@ -64,22 +64,24 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
     std::cout << "dans run " << std::endl;
 
     sf::Packet packet;
-    packet << static_cast<sf::Uint8>(4);
+    packet << static_cast<sf::Uint8>(3);
     if(!_exit)
     {
+        _player->getSocket()->setBlocking(true);
         if(_player->getSocket()->send(packet) == sf::Socket::Done)
             std::cout << "info liste prete envoye" << std::endl;
          else std::cout << "echec envoi info liste prete " << std::endl;
+        _player->getSocket()->setBlocking(false);
     }
  
     packet.clear();  
     while (!_exit )
     { 
         synchronisation();
-
         HandleEvents(event); 
         float dt = clock.getElapsedTime().asSeconds();
-        Update(dt);
+        checkRecievedPacket(dt);
+        //Update(dt);
         clock.restart();
         Draw(); 
     }
@@ -93,7 +95,8 @@ void Partie::returnToMenu()
     _exit = true;
     _exitToMenu = true;
 }
-void Partie::checkRecievedPacket()
+
+void Partie::checkRecievedPacket(float dt)
 {
     sf::Packet packet;
         if(_player->getSocket()->receive(packet) == sf::Socket::Done)
@@ -102,18 +105,22 @@ void Partie::checkRecievedPacket()
             if(packet >> _typeOfPacket)
             {
                 std::cout << static_cast<int>(_typeOfPacket)<< " --> ";
-                if(_typeOfPacket == static_cast<sf::Uint8>(1))
+                if(_typeOfPacket == static_cast<sf::Uint8>(1)) //accepté dans lobby
                 {
                     _player->getSocket()->setBlocking(false);
                     packet >> _numberOfPlayer;
+                    packet >> _idPlayer;
                     std::cout << static_cast<int>(_numberOfPlayer) <<std::endl;
+                    
+                    _player->setID(_idPlayer);
+                   
                     _lobby = new Lobby(_window, _player, _numberOfPlayer);
                     if((_exit = _lobby->Run()))
                     {
                         _exitToMenu = _lobby->getExitToMenu();   
                         return;
                     }
-                }
+                }  //Si deconnexion ou erreur
                 else if(_typeOfPacket == static_cast<sf::Uint8>(6) || _typeOfPacket == static_cast<sf::Uint8>(7))
                 {
                     //!Afficher un message d'erreur au client
@@ -131,7 +138,17 @@ void Partie::checkRecievedPacket()
                     _exit = true;
                     _exitToMenu = true;
                 } 
-                else  std::cout <<"Type de paquet non pris en charge" << std::endl;
+                else if(_typeOfPacket == static_cast<sf::Uint8>(5)) //! Action de jeu
+                {
+                    packet >> _idSender;
+                    packet >> _action;
+                    for(Personnage * charchater : _characterList)
+                        if(charchater->getSkin() == static_cast<int>(_idSender))                   
+                            charchater->Update(dt, static_cast<int>(_action));
+                        
+                     
+
+                }else  std::cout <<"Type de paquet non pris en charge" << std::endl;
             } else std::cout <<"Erreur format du paquet" << std::endl;
         } else std::cout <<"Serveur inaccessible" << std::endl;;
 
@@ -164,11 +181,6 @@ void Partie::HandleEvents(sf::Event event)
     while (_window->pollEvent(event)) {
           
             if(event.type == sf::Event::Closed ){
-                //_exit = 1;
-                for (Personnage *charchater : _characterList)
-                {
-                    charchater->getOwner()->getSocket()->disconnect();
-                }
                _exit = true;
                _exitToMenu = false;
                break;
@@ -187,8 +199,12 @@ void Partie::HandleEvents(sf::Event event)
 
 void Partie::Update(float dt)
 {
+ 
     for (Personnage *character : _characterList)
         character->Update(dt);
+    
+
+    
 }
 
 void Partie::Draw()

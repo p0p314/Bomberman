@@ -28,11 +28,13 @@ public :
         titi = 0,
         toto
     };
+
     Personnage() = delete;
     Personnage(Player * player, Monde *monde, skin skin); //TODO: définir init pos au chargement de la map
     void setPlayer(Player *);
     Bombe & getBombe();
     
+    skin getSkin();
     void startDeath();
     void dying(float dt);
     void respawn();
@@ -43,7 +45,7 @@ public :
 
     bool owner(sf::Uint8 id);
     Player * getOwner();
-    void Update(float dt);
+    void Update(float dt, int dirFromPaclet = 10);
     void updateAnimation();
     virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
     
@@ -80,6 +82,7 @@ private :
     sf::Vector2f _spawnPos;
     sf::FloatRect _collisionZone;
 
+    int dirFromPacket;
     void move(Dir dir);
     int quantiteBombe = 2,
         bouclier = 0,

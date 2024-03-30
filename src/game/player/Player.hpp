@@ -19,7 +19,7 @@ class Player
 
         void getPacket();
         sf::Uint8 getSenderOfPacket();
-        sf::Uint8 getDirFromPacket();
+        sf::Uint8 dirFromPacket();
         
         sf::Uint8 getID();
         void setID(sf::Uint8);

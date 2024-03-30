@@ -18,7 +18,6 @@ Server::~Server()
         for(std::pair  pair : *_playerList)  
             delete pair.first;        
     
-    delete _mutex;
 }
 
 void Server::run()
@@ -143,20 +142,14 @@ void Server::run()
             while(!_endOfGame)
             {
                 std::cout<<"Dans la partie " << std::endl;
-                if(_selector.wait())
-                {    
-                    std::cout<<"Quelqu'un est pret a recevoir" <<std::endl;                        
-                    if(_selector.isReady(_listener))
-                    {
-                        checkPacketFromPlayers();
-                    }
-                }
+                checkPacketFromPlayers();
                 sf::sleep(sf::seconds(1));
             }
             //!Gerer les evenements de SYNC et de partie
         }
     }
 }
+
 
 void Server::checkPacketFromPlayers()
 {
@@ -241,7 +234,7 @@ void Server::newClient(sf::TcpSocket *client)
     std::cout << "nouveau client : " << client->getRemoteAddress() << std::endl;
     _playerList->push_back(std::pair(new Player(client, client->getRemoteAddress()),_playerType));
     _selector.add(*client);
-    packet << numberOfPlayer << static_cast<sf::Uint8>(_playerList->size());
+    packet << numberOfPlayer << static_cast<sf::Uint8>(_playerList->size()) << _idPlayer ;
     //sf::sleep(sf::milliseconds(1000));
     for(std::pair  player : *_playerList)
         if(player.first->getSocket()->send(packet) == sf::Socket::Done)

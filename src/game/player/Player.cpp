@@ -1,11 +1,6 @@
 #include "Player.hpp"
 
-Player::Player(){
-    _client = new sf::TcpSocket();
-    //_client->setBlocking(false);
-    
-   
-}
+Player::Player(){ }
 
 Player::Player(sf::TcpSocket * socket, sf::IpAddress IPadress){
     _client = socket;
@@ -83,7 +78,7 @@ sf::Uint8 Player::getSenderOfPacket()
     return _senderOfPacket;
 }
 
-sf::Uint8 Player::getDirFromPacket()
+sf::Uint8 Player::dirFromPacket()
 {
     return _dirFromPacket;
 }
@@ -126,7 +121,8 @@ void Player::quiteGame()
 void Player::action(sf::Uint8 typeOfAction)
 {
     sf::Packet packet;
-    packet << static_cast<sf::Uint8>(5) <<typeOfAction;
+    sf::Uint8 actionPacket = 5;
+    packet << actionPacket << _ID << typeOfAction;
     if(_client->send(packet) == sf::Socket::Done)
     {
         std::cout << "paquet action envoye" << std::endl;

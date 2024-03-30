@@ -50,11 +50,11 @@ Personnage::Personnage(Player * player, Monde* level,skin apparence) : _player(p
   
 }
 
-
 void Personnage::setPlayer(Player * player)
 {
     _player = player;
 }
+
 sf::FloatRect Personnage::getCollisionZone()
 {
     return _collisionZone;
@@ -78,6 +78,7 @@ void Personnage::updateAnimation()
     _sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
                                           _spriteWidth,_spriteHeight));
 }
+
 void Personnage::dying(float dt)
 {
 
@@ -111,6 +112,7 @@ void Personnage::startDeath()
     _posSpriteDeathAnimation = 1;
     _dying = true;
 }
+
 void Personnage::move(Dir dir)
 {
     _posSpriteAnimation.y = dir;
@@ -139,59 +141,23 @@ void Personnage::move(Dir dir)
     if(_level->isColision(this))
         _sprite.move(-movement);
 }
+
 void Personnage::actions(sf::Event event, bool allowingMovement)
 {   
-    
-
-
-        if(allowingMovement && !_dying){
-            /*if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ||
-                sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
-                sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
-                sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) || (_player->getDirFromPacket() != 0 && _player->getDirFromPacket() != 10 ))
-            {
-                _moving = true;
-            } else _moving = false;*/
+        if(allowingMovement && !_dying){        
 
             if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z))) _player->action(sf::Uint8(1));
-            /*if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z))  || _player->getDirFromPacket() == 1){
-                _posSpriteAnimation.y = Up; 
-                _sprite.move(0,-_speed);
-                if(_level->isColision(this))
-                    _sprite.move(0,_speed);
-                _player->addEvent(_name,sf::Uint8(1));
-            }
-            */
+        
             if((sf::Keyboard::isKeyPressed(sf::Keyboard::D)))_player->action(sf::Uint8(2)); 
 
-            /*if((sf::Keyboard::isKeyPressed(sf::Keyboard::D)) || _player->getDirFromPacket() == 2){ 
-                _posSpriteAnimation.y = Right; 
-                _sprite.move(_speed,0);
-                if(_level->isColision(this)) 
-                    getSprite().move(-_speed,0);
-                _player->addEvent(_name,sf::Uint8(2));
-            }*/
+         
             if((sf::Keyboard::isKeyPressed(sf::Keyboard::S)) ) _player->action(sf::Uint8(3));
 
-           /* if((sf::Keyboard::isKeyPressed(sf::Keyboard::S)) || _player->getDirFromPacket() == 3){ 
-                _posSpriteAnimation.y = Down; 
-                _sprite.move(0,_speed);
-                if(_level->isColision(this)) 
-                    getSprite().move(0,-_speed);
-                _player->addEvent(_name,sf::Uint8(3));
-
-            }*/
+         
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) _player->action(sf::Uint8(4));
-            /*if((sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) || _player->getDirFromPacket() == 4){ 
-                _posSpriteAnimation.y = Left; 
-                _sprite.move(-_speed,0);
-                if(_level->isColision(this)) 
-                    getSprite().move(_speed,0);
-                _player->addEvent(_name,sf::Uint8(4));
-
-            } */  
+           
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) _player->action(sf::Uint8(0));
-            /*if ((sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) || _player->getDirFromPacket() == 0) { 
+            /*if ((sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) || _player->dirFromPacket() == 0) { 
                 if(getBombe().plant(_level)){
                     getBombe().setVisibility(true);
                     _bombInHand = false;
@@ -204,27 +170,31 @@ void Personnage::actions(sf::Event event, bool allowingMovement)
     
 }
 
-void Personnage::Update(float dt)
+
+Personnage::skin Personnage::getSkin()
+{
+    return _skin;
+}
+void Personnage::Update(float dt, int dirFromPacket)
 {
     _elapsedTime += dt;
     _elaspsedTimeDeath += dt;
 
-    //! gestion déplacement
-    _player->getPacket();
+  
     
-    if(_player->getDirFromPacket() == 0){
+    if(dirFromPacket == 0){
         if(getBombe().plant(_level))
         {
             _bombInHand = false;
             _level->getBombList().push_back(std::make_pair(this,&getBombe()));
         }
     }
-    else if(_player->getDirFromPacket() > 0 && _player->getDirFromPacket() < 10 ){
+    else if(dirFromPacket > 0 && dirFromPacket < 10 ){
         _moving = true;
-        if(_player->getDirFromPacket() == 1) move(Up);
-        else if(_player->getDirFromPacket() == 2) move(Right);
-        else if(_player->getDirFromPacket() == 3) move(Down);
-        else if(_player->getDirFromPacket() == 4) move(Left);
+        if(dirFromPacket == 1) move(Up);
+        else if(dirFromPacket == 2) move(Right);
+        else if(dirFromPacket == 3) move(Down);
+        else if(dirFromPacket == 4) move(Left);
     }  else _moving = false;
     
     

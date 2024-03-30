@@ -18,6 +18,9 @@ class Partie
 {
     private: 
         sf::Uint8 _numberOfPlayer = 0,
+                  _idPlayer,
+                  _idSender,
+                  _action,
                   _typeOfPacket,
                   _playerDisconnected,
                   _startGame;
@@ -38,7 +41,7 @@ class Partie
              _exitToMenu = true;
 
         void returnToMenu();
-        void checkRecievedPacket();
+        void checkRecievedPacket(float dt = 0);
         void disconnectFromServer();
         void synchronisation();
         void HandleEvents(sf::Event);
