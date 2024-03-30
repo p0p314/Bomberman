@@ -293,3 +293,8 @@ void Personnage::draw(sf::RenderTarget & target, sf::RenderStates states) const
     if(_alive || _dying)target.draw(_sprite);
     
 }
+
+Player *  Personnage::getOwner()
+{
+    return _player;
+}
