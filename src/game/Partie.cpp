@@ -110,10 +110,10 @@ void Partie::checkRecievedPacket(float dt)
                     _player->getSocket()->setBlocking(false);
                     packet >> _numberOfPlayer;
                     packet >> _idPlayer;
-                    std::cout << static_cast<int>(_numberOfPlayer) <<std::endl;
+                    std::cout << "nombre de joueurs : "<< static_cast<int>(_numberOfPlayer) <<std::endl;
                     
                     _player->setID(_idPlayer);
-                   
+                    std::cout<< "id du joueur :"<<static_cast<int>(_player->getID()) << std::endl;
                     _lobby = new Lobby(_window, _player, _numberOfPlayer);
                     if((_exit = _lobby->Run()))
                     {
@@ -142,6 +142,7 @@ void Partie::checkRecievedPacket(float dt)
                 {
                     packet >> _idSender;
                     packet >> _action;
+                    std::cout<< "idSender ::: " << static_cast<int>(_idSender) <<std::endl; 
                     for(Personnage * charchater : _characterList)
                         if(charchater->getSkin() == static_cast<int>(_idSender))                   
                             charchater->Update(dt, static_cast<int>(_action));
@@ -150,7 +151,7 @@ void Partie::checkRecievedPacket(float dt)
 
                 }else  std::cout <<"Type de paquet non pris en charge" << std::endl;
             } else std::cout <<"Erreur format du paquet" << std::endl;
-        } else std::cout <<"Serveur inaccessible" << std::endl;;
+        } 
 
 }
 
@@ -165,10 +166,13 @@ void Partie::synchronisation()
                 if(_startGame == static_cast<int>(4))
                 {
                     sf::Clock synchronisation;
+                    float dt = 0.f;  
                     while(synchronisation.getElapsedTime().asSeconds() < 3)
                     {
-                        std::cout << synchronisation.getElapsedTime().asSeconds() << std::endl;
+                        
+                        
                     }//!Afficher le compteur sur l'ecran de jeu
+                     std::cout << "jouer" << std::endl;
                         _synchronised = true;
                         _allowingMovement = true;
                 }

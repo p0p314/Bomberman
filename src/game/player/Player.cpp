@@ -124,10 +124,11 @@ void Player::action(sf::Uint8 typeOfAction)
 {
     sf::Packet packet;
     sf::Uint8 actionPacket = 5;
+            
     packet << actionPacket << _ID << typeOfAction;
     if(_client->send(packet) == sf::Socket::Done)
     {
-        std::cout << "paquet action envoye" << std::endl;
+        std::cout << "paquet action envoye, mon id"<< static_cast<int>(_ID) << std::endl;
     }
     else 
     {
