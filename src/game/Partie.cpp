@@ -5,30 +5,144 @@ Partie::Partie(sf::RenderWindow * window, Player * creator) :  _window(window), 
     int i;
     _player = creator;
     _creator = true;
-   // _server = new Server();
+    _playerList = new std::vector<std::pair<Player*, Personnage*>>();
     
-    //startServer();          //!ajouter liste de joueurs
-    
-    _lobby = new Lobby(_window);
-    if((_exit = _lobby->Run()))
+    if(!_player->joinAGame())
     {
-        _exitToMenu = _lobby->getExitToMenu();   
-        return;
+        _exit = true;
+        _exitToMenu = true;
+        std::cout << "bug"<< std::endl;
     }
+    else
+    {
+        _player->signalArrival(static_cast<sf::Uint8>(0),static_cast<sf::Uint8>(2));
+
+        
+        sf::Packet packet;
+        if(_player->getSocket()->receive(packet) == sf::Socket::Done)
+        {
+            std::cout << "paquet recu : ";
+            if(packet >> _typeOfPacket)
+            {
+                std::cout << static_cast<int>(_typeOfPacket)<< " --> ";
+                if(_typeOfPacket == static_cast<sf::Uint8>(1))
+                {
+                    _player->getSocket()->setBlocking(false);
+                    packet >> _numberOfPlayer;
+                    std::cout << static_cast<int>(_numberOfPlayer) <<std::endl;
+                    _lobby = new Lobby(_window, _player, _numberOfPlayer);
+                    if((_exit = _lobby->Run()))
+                    {
+                        _exitToMenu = _lobby->getExitToMenu();   
+                        return;
+                    }
+                }
+                else if(_typeOfPacket == static_cast<sf::Uint8>(6) || _typeOfPacket == static_cast<sf::Uint8>(7))
+                {
+                    //!Afficher un message d'erreur au client
+                    if(_typeOfPacket == static_cast<sf::Uint8>(7))
+                    {
+                        packet >> _errorMessage;
+                        std::cout << "erreur : " << _errorMessage << std::endl;
+                    }
+                    else
+                    {
+                        packet >> _playerDisconnected;
+                        std::cout << "deconnexion : " << _playerDisconnected <<std::endl;
+                    }
+                    
+                    _exit = true;
+                    _exitToMenu = true;
+                } 
+                else  std::cout <<"Type de paquet non pris en charge" << std::endl;
+            } else std::cout <<"Erreur format du paquet" << std::endl;
+        } else std::cout <<"Serveur inaccessible" << std::endl;;
+        
+        
+        std::cout <<"Nombre de joueur pour la partie : " << static_cast<int>(_numberOfPlayer) << std::endl;;
   
-    _level = new Monde();
-    _level->initialisation();
-    _player->joinAGame();
-    
-    //! waitinforPlayers(); //fonction avec une boucle while et de l'affichage dedans, comme ça le run de la partie ne se lance que quand le nombre de joueurs necessaire est atteint
+        _level = new Monde();
+        _level->initialisation();
+        
+         if (_characterList.size() != _numberOfPlayer)
+        {
+        
+            Personnage::skin skins[] = {Personnage ::toto, Personnage::titi};
+            for (int j = 0; j < _numberOfPlayer; j++)
+            {
+                Personnage *p = new Personnage(_player,_level, skins[j]);
+                _characterList.push_back(p);
+            }
+            _allowingMovement = true;
+        }
+
+    }
 }
 
 Partie::Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server) :  _window(window), _mutex(new std::mutex)
 {
     _player = joiner;
+     if(_player->joinAGame())
+        _player->signalArrival(static_cast<sf::Uint8>(0));
+    else std::cout << "bug"<< std::endl;
+    
+    sf::Packet packet;
+    if(_player->getSocket()->receive(packet) == sf::Socket::Done)
+    {
+        std::cout << "paquet recu : ";
+        if(packet >> _typeOfPacket)
+        {
+            std::cout << static_cast<int>(_typeOfPacket)<< " --> ";
+            if(_typeOfPacket == static_cast<sf::Uint8>(1))
+            {
+                _player->getSocket()->setBlocking(false);
+                packet >> _numberOfPlayer;
+                std::cout << static_cast<int>(_numberOfPlayer) <<std::endl;
+                _lobby = new Lobby(_window, _player, _numberOfPlayer);
+                if((_exit = _lobby->Run()))
+                {
+                    _exitToMenu = _lobby->getExitToMenu();   
+                    return;
+                }
+            }
+            else if(_typeOfPacket == static_cast<sf::Uint8>(6) || _typeOfPacket == static_cast<sf::Uint8>(7))
+            {
+                //!Afficher un message d'erreur au client
+                if(_typeOfPacket == static_cast<sf::Uint8>(7))
+                {
+                    packet >> _errorMessage;
+                    std::cout << "erreur : " << _errorMessage << std::endl;
+                }
+                else
+                {
+                    packet >> _playerDisconnected;
+                    std::cout << "deconnexion : " << _playerDisconnected <<std::endl;
+                }
+                
+                _exit = true;
+                _exitToMenu = true;
+            } 
+            else  std::cout <<"Type de paquet non pris en charge" << std::endl;
+        } else std::cout <<"Erreur format du paquet" << std::endl;
+    } else std::cout <<"Serveur inaccessible" << std::endl;;
+    
+    
+    std::cout <<"Nombre de joueur pour la partie : " << static_cast<int>(_numberOfPlayer) << std::endl;;
+  
     _level = new Monde();
     _level->initialisation();
-    _player->joinAGame();
+    
+     if (_characterList.size() != _numberOfPlayer)
+    {
+    
+        Personnage::skin skins[] = {Personnage ::toto, Personnage::titi};
+        for (int j = 0; j < _numberOfPlayer; j++)
+        {
+            Personnage *p = new Personnage(_player,_level, skins[j]);
+            _characterList.push_back(p);
+        }
+        _allowingMovement = true;
+    }
 }
 
 Partie::~Partie()
@@ -58,33 +172,13 @@ Monde * Partie::getLevel()
     return _level;
 }
 
-int Partie::Run() // Méthode appeler par le menu lorsque le joueur rejoint une partie.
+int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une partie.
 {
 
     sf::Event event;
     sf::Clock clock;
     
-  
-       
-        
-
-    int i = 0;
-
-    /*if (_characterList.size() != _server->getPlayers()->size())
-    {
-        std::vector<Player *> *players = _server->getPlayers();
-        Personnage::skin skins[] = {Personnage ::toto, Personnage::titi};
-        for (int j = 0; j < players->size(); j++)
-        {
-            Personnage *p = new Personnage(_player,_level, skins[j]);
-            _characterList.push_back(p);
-        }
-        std::cout << "nb Personnage : " << _characterList.size();
-        std::cout << ", nb Joueur : " << _server->getPlayers()->size() << std::endl;
-        _allowingMovement = true;
-    }*/
-
-     std::cout << "dans run " << std::endl;
+    std::cout << "dans run " << std::endl;
     while (!_exit )
     { 
   
@@ -93,15 +187,10 @@ int Partie::Run() // Méthode appeler par le menu lorsque le joueur rejoint une 
         float dt = clock.getElapsedTime().asSeconds();
         Update(dt);
         clock.restart();
-        Draw(); // Fonction pour dessiner les personnages la carte.
+        Draw(); 
     }
-    std::cout << "attente du join " << std::endl;
-    /*if(_gameServer->joinable())
-    {
-        std::cout << "joignable " << std::endl;
-        _gameServer->join();
-    }
-    std::cout << "join fait " << std::endl;*/
+    _player->quiteGame();
+
     return _exitToMenu;
 }
 
@@ -125,6 +214,7 @@ void Partie::HandleEvents(sf::Event event)
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Delete))
             {
+                _exit = true;
                 _exitToMenu = true;
             }
     }

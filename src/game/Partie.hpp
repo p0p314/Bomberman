@@ -17,12 +17,19 @@ class Lobby;
 class Partie
 {
     private: 
+        sf::Uint8 _numberOfPlayer = 0,
+                  _typeOfPacket,
+                  _playerDisconnected;
+        
+        std::string _errorMessage;
+
         sf::RenderWindow * _window;
         std::string _codeGame;
         Server * _server;
         Monde *_level; 
         Player * _player;
         std::mutex * _mutex;
+        std::vector<std::pair<Player*, Personnage*>> * _playerList;
         std::vector<Personnage*> _characterList;
         std::thread * _gameServer;
         Lobby * _lobby;
