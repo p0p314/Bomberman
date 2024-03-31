@@ -22,7 +22,7 @@ Partie::Partie(sf::RenderWindow * window, Player * player, sf::Uint8 typeOfPlaye
 
              if (_characterList.size() != _numberOfPlayer)
             {
-                Personnage::skin skins[] = {Personnage ::toto, Personnage::titi};
+                Personnage::skin skins[] = {Personnage::titi,Personnage ::toto};
                 for (int j = 0; j < _numberOfPlayer; j++)
                 {
                     Personnage *p = new Personnage(_player,_level, skins[j]);
@@ -80,8 +80,8 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
         synchronisation();
         if(_synchronised)
         {
-            HandleEvents(event); 
             float dt = clock.getElapsedTime().asSeconds();
+            HandleEvents(event, dt); 
             if(!checkRecievedPacket(dt));
                 Update(dt);
             clock.restart();
@@ -134,8 +134,7 @@ bool Partie::checkRecievedPacket(float dt)
                 }
                 else
                 {
-                    packet >> _playerDisconnected;
-                    std::cout << "deconnexion : " << _playerDisconnected <<std::endl;
+                    std::cout << "Un joueur a quiitte la partie : "<< std::endl;
                 }
                 _exit = true;
                 _exitToMenu = true;
@@ -185,7 +184,7 @@ void Partie::synchronisation()
     }
 }
 
-void Partie::HandleEvents(sf::Event event)
+void Partie::HandleEvents(sf::Event event, float dt)
 {
     while (_window->pollEvent(event)) {
           
@@ -196,7 +195,7 @@ void Partie::HandleEvents(sf::Event event)
             } 
             if(_synchronised)
                 for(Personnage * charchater : _characterList) 
-                    charchater->actions(event, _allowingMovement);
+                    charchater->actions(event, _allowingMovement, dt);
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Delete))
             {

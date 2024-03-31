@@ -30,7 +30,7 @@ class Player
         bool joinAGame();
         bool signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers = 0);
         void listReady();
-        void action(sf::Uint8 typeOfAction);
+        void action(sf::Uint8 typeOfAction, float dt);
         void quiteGame();
 
  private :
@@ -45,4 +45,7 @@ class Player
     
     sf::Uint8 _dirFromPacket,
                _senderOfPacket;
+
+    float _elapsedTimeKeyPressed = 0;
+    float _timeBeforeNewAction = 0.250f;
 };

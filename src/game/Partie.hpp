@@ -44,7 +44,7 @@ class Partie
         bool checkRecievedPacket(float dt = 0);
         void disconnectFromServer();
         void synchronisation();
-        void HandleEvents(sf::Event);
+        void HandleEvents(sf::Event, float dt =0);
         void Update(float dt);
         void Draw();
 
