@@ -85,7 +85,8 @@ private:
     bool _serverOpen = true,
          _endOfGame = false,
          _inLobby = true;
-
+    void initData();
+    void returnToMenu();
     void clientDisconnect(std::pair<Player*,sf::Uint8> client,
                          std::vector<std::pair<Player *, sf::Uint8>>::iterator it);
     

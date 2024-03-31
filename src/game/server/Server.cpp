@@ -26,10 +26,7 @@ void Server::run()
     while(_serverOpen)
     {
         std::cout<< "Ecoute sur le port " << _listener.getLocalPort() <<std::endl;
-        _selector.add(_listener);
-        _endOfGame = false;
-        _inLobby = true;
-        _idPlayer = 0;
+        initData();
         //!Boucle de jeu
         while(!_endOfGame)
         {   
@@ -76,7 +73,8 @@ void Server::run()
 
 
                                 std::cout<< "Connecte, attend paquet" << std::endl;
-                                if(client->receive(packet) == sf::Socket::Done)
+                                auto status = client->receive(packet);
+                                if(status == sf::Socket::Done)
                                 {
                                     //! Quand la partie est crée - ajout de l'host
                                     if(_playerList->empty())
@@ -94,6 +92,7 @@ void Server::run()
                                             {
                                                 //! Verification de la cohérence des données
                                                 packetError(client, contents, _packetContentError);                                    
+                                                returnToMenu();
                                                 continue;
                                             }
 
@@ -101,7 +100,8 @@ void Server::run()
                                         else
                                         {
                                              //! Taille de paquet incorrecte
-                                            packetError(client, size, _packetTypeError);                                   
+                                            packetError(client, size, _packetTypeError);  
+                                            returnToMenu();                                 
                                             continue;
                                         }                  
                                     } 
@@ -128,9 +128,22 @@ void Server::run()
                                             continue;
                                         }  
                                     }
-                                }
+                                } else if(status == sf::Socket::Done) std::cout << "deco"<<std::endl;
+                                else if(status ==sf::Socket::Error) std::cout << "erreur" <<std::endl;
+                                else
+                                {
+                                    sf::Uint8 cleanBuffer;
+                                    packet >> cleanBuffer;
+                                    std::cout  << "code " << static_cast<int>(status)<< std::endl;
+                                    std::cout <<"\tcontient " << cleanBuffer;
+                                } 
                             } 
-                            else delete client;
+                            else
+                            {
+                                std::cout  << "connexion impossible" << std::endl;
+                                std::cerr;
+                                delete client;
+                            } 
                         }              
                         checkPacketFromPlayers();                    
                     }
@@ -147,18 +160,22 @@ void Server::checkPacketFromPlayers()
 {
     for(auto it = _playerList->begin(); it != _playerList->end();)
     {
+        
         sf::Packet packet;
         std::pair client = *it;
         sf::TcpSocket * clientSocket = client.first->getSocket();
         sf::Socket::Status status = clientSocket->receive(packet);
+        std::cout << " check pour le client  : " << client.second << std::endl << "\t ";
         switch (status)
         {
             case sf::Socket::Done :
                 std::cout << "paquet recu de : " << clientSocket->getRemoteAddress() << " --> ";
                 if(packet >> _packetType)
                 {
-                    if(_packetType == quiteGame)
+                    if(_packetType == quiteGame){
+                        std::cout << " quiteGame : ";
                         clientDisconnect(client, it); 
+                    }
 
                     else if(_packetType == action )
                     {
@@ -172,7 +189,7 @@ void Server::checkPacketFromPlayers()
                             packet << _packetType << _idSender << _actionType; //!!!!Ajouter identification du joueur
                             for(std::pair  player : *_playerList)
                                 player.first->getSocket()->send(packet);
-                            std::cout << "action partagee a tous les joueurs";
+                            std::cout << "action partagee a tous les joueurs" << std::endl;
                         }
                     } 
                     else if(_packetType == listReady )
@@ -181,12 +198,13 @@ void Server::checkPacketFromPlayers()
                         std::cout << "liste prete | " << _cptListReady << " prete(s)" << std::endl;
                         if(_cptListReady == _maxPlayers)
                         {
-                            std::cout << "Tous les personnagent attendent" <<std::endl;
                             sf::Packet packet;
                             packet << startGame;
                             sf::sleep(sf::milliseconds(500));
+                            std::cout << "Tous le monde est pret, debut dans 3 secondes" <<std::endl;
                             for(auto & player : *_playerList)
                                 player.first->getSocket()->send(packet);
+
                         }  
                     } else std::cout<< static_cast<int>(_packetType) << std::endl;
                             
@@ -194,11 +212,13 @@ void Server::checkPacketFromPlayers()
                 break;
 
             case sf::Socket::Disconnected : 
+                std::cout << " disconnected : " << std::endl;
                 clientDisconnect(client, it);
                 break;
                 
             case sf::Socket::Error : 
-                std::cout <<"erreur avec le client" << client.second <<std::endl;
+                std::cout <<"erreur avec le client : " << static_cast<int>(client.second) <<std::endl;
+                std::cerr;
                 break;
 
             default:
@@ -249,32 +269,53 @@ void Server::clientDisconnect(std::pair<Player*,sf::Uint8> client, std::vector<s
 {
     sf::TcpSocket * clientSocket = client.first->getSocket();
     sf::Packet packet;
-    std::cout <<"deconnexion de " << clientSocket->getRemoteAddress()<< std::endl;
-    clientSocket->disconnect();
+    std::cout <<"\tdeconnexion de " << clientSocket->getRemoteAddress()<< std::endl;
     packet.clear();
     packet << quiteGame << client.second;
     if(client.second == _idHost)
     {
-        for(std::pair  player : *_playerList){
-            player.first->getSocket()->send(packet);
-            player.first->getSocket()->disconnect();
-        }
-        _playerList->clear();
-        _selector.clear();
-        _inLobby = false;
-        _endOfGame = true;
-        _maxPlayers = 1;
-        _cptListReady = 0;
+        returnToMenu();
     } 
     else
     {
         for(std::pair  player : *_playerList)
             player.first->getSocket()->send(packet);
         clientSocket->disconnect();
-        _playerList->erase(it);                                                       
+        it = _playerList->erase(it);                                                       
         _selector.remove(*clientSocket);
         _cptListReady--;
     }
+}
+
+void Server::returnToMenu()
+{
+    sf::Packet packet;
+    packet << quiteGame;
+
+    if(!_playerList->empty())
+        for(std::pair  player : *_playerList)
+        {
+            player.first->getSocket()->send(packet);
+            sf::sleep(sf::milliseconds(200));
+            player.first->getSocket()->disconnect();
+        }
+
+    _inLobby = false;
+    _endOfGame = true;
+   
+    
+}
+
+void Server::initData()
+{
+    _playerList->clear();
+    _selector.clear();
+    _inLobby = true;
+    _endOfGame = false;
+    _maxPlayers = 1;
+    _cptListReady = 0;
+    _idPlayer = 0;
+    _selector.add(_listener);
 }
 int main(int argc, char const *argv[])
 {
