@@ -64,13 +64,17 @@ void Player::getPacket()
 
 bool Player::joinAGame()
 {
-
-        if(_client->connect(sf::IpAddress("176.143.129.142"), 2000) == sf::Socket::Done)
+        auto status = _client->connect(sf::IpAddress("176.143.129.142"), 2000,sf::Time(sf::seconds(2)));
+        if( status == sf::Socket::Done)
         {  
             std::cout << "player : connexion reussi" <<  std::endl;
             return true;
         } 
-        std::cout << "player : connexion echouee" <<  std::endl;
+        else if( status == sf::Socket::Error)
+        {
+            std::cout << "player : connexion echouee" <<  std::endl;
+        
+        }
         return false;
     
 }
@@ -118,21 +122,31 @@ void Player::quiteGame()
     {
         std::cout << "paquet quiteGame echoue" << std::endl; 
     }
+
+    _client->disconnect();
 }
 
-void Player::action(sf::Uint8 typeOfAction)
+void Player::action(sf::Uint8 typeOfAction, float dt)
 {
-    sf::Packet packet;
-    sf::Uint8 actionPacket = 5;
-            
-    packet << actionPacket << _ID << typeOfAction;
-    if(_client->send(packet) == sf::Socket::Done)
+    
+    _elapsedTimeKeyPressed += dt; 
+    
+    if((_elapsedTimeKeyPressed > _timeBeforeNewAction) || typeOfAction == sf::Uint8(0))
     {
-        std::cout << "paquet action envoye, mon id"<< static_cast<int>(_ID) << std::endl;
-    }
-    else 
-    {
-        std::cout << "paquet action echoue" << std::endl; 
+
+        sf::Packet packet;
+        sf::Uint8 actionPacket = 5;
+
+        packet << actionPacket << _ID << typeOfAction;
+        if(_client->send(packet) == sf::Socket::Done)
+        {
+            std::cout << "paquet action envoye, mon id "<< static_cast<int>(_ID) << std::endl;
+        }
+        else 
+        {
+            std::cout << "paquet action echoue" << std::endl; 
+        }
+        if(typeOfAction != sf::Uint8(0)) _elapsedTimeKeyPressed = 0;
     }
 
     

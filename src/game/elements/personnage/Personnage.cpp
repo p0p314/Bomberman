@@ -109,48 +109,29 @@ void Personnage::startDeath()
     _dying = true;
 }
 
-void Personnage::move(Dir dir)
+void Personnage::move(sf::Vector2f movement)
 {
-    _posSpriteAnimation.y = dir;
-    sf::Vector2f movement;
-    switch (dir)
-    {
-    case Up :
-        movement = sf::Vector2f(0,-_speed);
-        break;
-    
-    case Right : 
-        movement = sf::Vector2f(_speed,0);
-        break;
-    case Down : 
-        movement = sf::Vector2f(0,_speed);
-        break;
-    case Left : 
-        movement = sf::Vector2f(-_speed,0);
-        break;
-    default:
-        
-        break;
-    }
-
     _sprite.move(movement);
     if(_level->isColision(this))
         _sprite.move(-movement);
 }
 
-void Personnage::actions(sf::Event event, bool allowingMovement)
+void Personnage::actions(sf::Event event, bool allowingMovement, float dt)
 {   
         if(allowingMovement && !_dying){  
 
-            if(event.type == sf::Event::KeyReleased)
-            {
-                if(event.key.code == sf::Keyboard::Z) _player->action(sf::Uint8(1));
-                if(event.key.code == sf::Keyboard::D) _player->action(sf::Uint8(2)); 
-                if(event.key.code == sf::Keyboard::S) _player->action(sf::Uint8(3));  
-                if(event.key.code == sf::Keyboard::Q) _player->action(sf::Uint8(4));
-            }      
+            if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z))) _player->action(sf::Uint8(1),dt);
+        
+            if((sf::Keyboard::isKeyPressed(sf::Keyboard::D)))_player->action(sf::Uint8(2),dt); 
+
+         
+            if((sf::Keyboard::isKeyPressed(sf::Keyboard::S)) ) _player->action(sf::Uint8(3),dt);
+
+         
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) _player->action(sf::Uint8(4),dt);
+           
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) _player->action(sf::Uint8(0),dt);
             
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && _bombInHand) _player->action(sf::Uint8(0));
         
         }
     
@@ -176,12 +157,36 @@ void Personnage::Update(float dt, int dirFromPacket)
             _level->getBombList().push_back(std::make_pair(this,&getBombe()));
         }
     }
-    else if(dirFromPacket > 0 && dirFromPacket < 10 ){
+    else if((dirFromPacket > 0 && dirFromPacket < 10) && !_dying ){
+        float distance = _speed * dt;
+        sf::Vector2f movement(0.0f,0.0f);
+       
+      
+        if(dirFromPacket == 1)
+        {
+            _posSpriteAnimation.y = Up;
+            movement.y -=distance;
+        } 
+            
+        if(dirFromPacket == 2)
+        {
+            _posSpriteAnimation.y = Right;
+            movement.x += distance;
+            
+        } 
+        if(dirFromPacket == 3)
+        {
+            _posSpriteAnimation.y = Down;
+            movement.y += distance;
+        } 
+        if(dirFromPacket == 4)
+        {
+            _posSpriteAnimation.y = Left;
+            movement.x -= distance;
+        } 
+       
         _moving = true;
-        if(dirFromPacket == 1) move(Up);
-        else if(dirFromPacket == 2) move(Right);
-        else if(dirFromPacket == 3) move(Down);
-        else if(dirFromPacket == 4) move(Left);
+        move(movement);
     }  else _moving = false;
     
     dirFromPacket = 10; //!  = Aucune action

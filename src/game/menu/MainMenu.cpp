@@ -12,7 +12,8 @@ MainMenu::MainMenu(float width, float height) {
     _windowM->create(sf::VideoMode(width, height), "BOMBERMAN", sf::Style::Default, settings); // Création de la fenêtre
     _windowM->setFramerateLimit(30);
 
-    if (!font.loadFromFile("assets/fonts/BondiBraveDemoRegular.ttf"))
+
+    if(!font.loadFromFile("assets/fonts/BondiBraveDemoRegular.ttf"))
         cout<< "Pas d'image ici \n";
 
     if (!Menu.loadFromFile("assets/MenuFinale.png"))
@@ -53,6 +54,7 @@ MainMenu::~MainMenu() { delete _windowM; delete player; };
 void MainMenu::Run()
 {
     _exit = false;
+    mainMenu[MainMenuSelected].setFillColor(Color::Magenta);
     while (!_exit)
     {
         draw();
@@ -124,13 +126,13 @@ void MainMenu::MoveUp()
 }
 void MainMenu::MoveDown()
 { // Fonction pour la sélection du menu.
-    if(MainMenuSelected +1 <=Max_main_menu)
+    if(MainMenuSelected  < Max_main_menu)
     {
         mainMenu[MainMenuSelected].setFillColor(Color::White);
         MainMenuSelected++;
-        if(MainMenuSelected==4)
+        if(MainMenuSelected == Max_main_menu)
         {
-            MainMenuSelected=0;
+            MainMenuSelected = 0;
         }
         mainMenu[MainMenuSelected].setFillColor(Color::Magenta);
     }

@@ -9,7 +9,6 @@
 using namespace std;
 using namespace sf;
 
-#define Max_main_menu 4
 
 class MainMenu
 {
@@ -36,8 +35,10 @@ private:
     Player *player;
     int MainMenuSelected = 0;
     Font font;
+    
+    int Max_main_menu = 4;
 
-    Text mainMenu[Max_main_menu];
+    Text mainMenu[4];
     Texture Menu;
     Sprite MenuI;
     Event event;

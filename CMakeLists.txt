@@ -44,4 +44,5 @@ if(WIN32)
         VERBATIM)
 endif()
 
+
 install(TARGETS Bomberman Server)

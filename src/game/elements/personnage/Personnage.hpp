@@ -24,7 +24,8 @@ class Personnage : public Element, public sf::Drawable
 {
 public : 
    
-    enum skin{
+    enum skin : int
+    {
         titi = 0,
         toto
     };
@@ -41,7 +42,7 @@ public :
    
     sf::FloatRect getCollisionZone();
     void updateCollisionZone();
-    void actions(sf::Event, bool allowingMovement);
+    void actions(sf::Event, bool allowingMovement, float dt);
 
     bool owner(sf::Uint8 id);
     Player * getOwner();
@@ -62,16 +63,18 @@ private :
     int _spriteWidth = 16,
         _spriteHeight = 24;
 
-    int _speed = 15;
-    bool _moving = false;
-    bool _bombInHand = true;
+    int _speed = 200;
+    bool _moving = false,
+         _bombInHand = true,
+         _alive = true,
+         _dying = false;
 
     float _elapsedTime = 0.f,
           _elaspsedTimeDeath = 0.f, 
-	      _timeToChangeFrame = 0.2f;
+	      _timeToChangeFrame = 0.170f;
 
-    bool _alive = true;
-    bool _dying = false;
+    
+    
 
    
     int _posSpriteDeathAnimation = 1;
@@ -83,8 +86,7 @@ private :
     sf::Vector2f _spawnPos;
     sf::FloatRect _collisionZone;
 
-    int dirFromPacket;
-    void move(Dir dir);
+    void move(sf::Vector2f movement);
     int quantiteBombe = 2,
         bouclier = 0,
         viesRestantes = 3;
