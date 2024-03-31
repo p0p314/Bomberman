@@ -42,16 +42,16 @@ std::vector<Ray*> Bombe::get_Rays()
 void Bombe::Update(float dt)
 {
     _elapsedTime += dt;
-    std::cout << "\t bombe -> visibilite : "<< _visibleBomb << std::endl;
-    std::cout << "\t bombe -> temps ecoule : "<< _elapsedTime << std::endl;
+    //std::cout << "\t bombe -> visibilite : "<< _visibleBomb << std::endl;
+    //std::cout << "\t bombe -> temps ecoule : "<< _elapsedTime << std::endl;
 
     //!Gerer animation bombe
     if(_visibleBomb && _elapsedTime >= _timeBeforeExplosion ){
         setFireVisibility(true);
          _elapsedTimeFireAnim += dt;
-        std::cout << "\t flammes visible"  << std::endl;
+       // std::cout << "\t flammes visible"  << std::endl;
         if(_posFireSpriteAnimation <4 && _elapsedTimeFireAnim >= _timeToChangeFrame){
-            std::cout << "\t condition ok"  << std::endl;
+         //   std::cout << "\t condition ok"  << std::endl;
             _posFireSpriteAnimation++;
             for(Ray * ray : _fire_Rays)
                 ray->updateRect(_posFireSpriteAnimation);
@@ -60,9 +60,8 @@ void Bombe::Update(float dt)
         }
 
     }
-    std::cout << "\t ouuuuh "  << std::endl;
     if(_visibleFire && _elapsedTime >= _timeEndOfExplosion){
-        std::cout << "\t Bombe explosée : invisible"  << std::endl;
+      //  std::cout << "\t Bombe explosée : invisible"  << std::endl;
         setVisibility(false);
         setFireVisibility(false);
         setExploded(true);
