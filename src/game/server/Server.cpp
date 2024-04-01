@@ -37,7 +37,7 @@ void Server::run()
                 
                 if(_playerList->size() == static_cast<int>(_maxPlayers))
                 {
-                    startGame();
+                    startPlaying();
                     continue;
                 }   
                     
@@ -61,7 +61,10 @@ void Server::waitingForPlayers()
         std::cout<< "listener est pret" << std::endl;
 
         if(_selector.isReady(_listener))
-           newPlayerTryingToJoin();                        
+        {
+            newPlayerTryingToJoin();                        
+            return;
+        }
                       
         checkPacketFromPlayers(); 
         if(_forcedExit == static_cast<sf::Uint8>(0)) DisconnectOthers();
@@ -77,7 +80,7 @@ void Server::newPlayerTryingToJoin()
     if(status == sf::Socket::Done){
         std::cout<< "connexion de "<< client->getRemoteAddress() << std::endl;
 
-        if(!_playerList->empty())
+        if(!_playerList->empty() && _playerList->size() >= _maxPlayers)
         {
             refuseNewPlayer(client);
             return;
@@ -91,12 +94,12 @@ void Server::newPlayerTryingToJoin()
 
 void Server::refuseNewPlayer(sf::TcpSocket * client)
 {
-    if(_playerList->size() >= _maxPlayers)
-    {
-        client->disconnect();
-        delete client;
-        return;
-    }
+    
+    std::cout << "deconnexion de " << client->getRemoteAddress() << std::endl;
+    client->disconnect();
+    delete client;
+    return;
+
 }
 
 void Server::acceptNewPlayer(sf::TcpSocket * client)
@@ -174,7 +177,7 @@ void Server::hasGuest(sf::TcpSocket * client, sf::Packet packet)
     }  
 }
 
-void Server::startGame()
+void Server::startPlaying()
 {
     sf::Packet packet;
     std::cout << "Envoi paquet pour creation de liste" <<std::endl;
