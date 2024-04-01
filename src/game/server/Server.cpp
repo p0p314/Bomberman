@@ -174,7 +174,7 @@ void Server::checkPacketFromPlayers()
                 {
                     if(_packetType == quiteGame){
                         if(debug)std::cout << " quiteGame : ";
-                        clientDisconnect(client, it); 
+                        clientDisconnect(client, it, packet); 
                     }
 
                     else if(_packetType == action )
@@ -213,7 +213,7 @@ void Server::checkPacketFromPlayers()
 
             case sf::Socket::Disconnected : 
                 if(debug)std::cout << " disconnected : " << std::endl;
-                clientDisconnect(client, it);
+                clientDisconnect(client, it, packet);
                 break;
                 
             case sf::Socket::Error : 
@@ -265,45 +265,37 @@ void Server::newClient(sf::TcpSocket *client)
    
 }
 
-void Server::clientDisconnect(std::pair<Player*,sf::Uint8> client, std::vector<std::pair<Player *, sf::Uint8>>::iterator it)
+void Server::clientDisconnect(std::pair<Player*,sf::Uint8> client, 
+                              std::vector<std::pair<Player *, sf::Uint8>>::iterator it,
+                              sf::Packet packet)
 {
     sf::TcpSocket * clientSocket = client.first->getSocket();
-    sf::Packet packet;
     std::cout <<"\tdeconnexion de " << clientSocket->getRemoteAddress()<< std::endl;
+    
+    sf::Uint8 forcedExit;
+    packet >> forcedExit;
+    std::cout <<"\tsortie forcee ?  " << static_cast<int>(forcedExit)<< std::endl;
     packet.clear();
-    packet << quiteGame << client.second;
-    if(client.second == _idHost)
-    {
-        returnToMenu();
-    } 
-    else
-    {
-        for(std::pair  player : *_playerList)
-            player.first->getSocket()->send(packet);
-        clientSocket->disconnect();
-        it = _playerList->erase(it);                                                       
-        _selector.remove(*clientSocket);
-        _cptListReady--;
-    }
+    packet << quiteGame;
+    
+    clientSocket->disconnect();
+    it = _playerList->erase(it);                                                       
+    _selector.remove(*clientSocket);
+
+    //! Lorsqu'un joueur se deconnecte, il force les autres à quitter la partie
+    if(forcedExit == static_cast<sf::Uint8>(0))
+        if(!_playerList->empty())
+            for(std::pair  player : *_playerList)
+                player.first->getSocket()->send(packet);
+
+    if(_playerList->empty()) returnToMenu();
+    
 }
 
 void Server::returnToMenu()
 {
-    sf::Packet packet;
-    packet << quiteGame;
-
-    if(!_playerList->empty())
-        for(std::pair  player : *_playerList)
-        {
-            player.first->getSocket()->send(packet);
-            sf::sleep(sf::milliseconds(200));
-            player.first->getSocket()->disconnect();
-        }
-
     _inLobby = false;
-    _endOfGame = true;
-   
-    
+    _endOfGame = true;   
 }
 
 void Server::initData()

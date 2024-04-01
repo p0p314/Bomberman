@@ -91,7 +91,8 @@ private:
 
     void returnToMenu();
     void clientDisconnect(std::pair<Player*,sf::Uint8> client,
-                         std::vector<std::pair<Player *, sf::Uint8>>::iterator it);
+                         std::vector<std::pair<Player *, sf::Uint8>>::iterator it,
+                         sf::Packet packet);
     
     void newClient(sf::TcpSocket* client);
     void packetError(sf::TcpSocket * client, Server::errorCode, std::string message);
