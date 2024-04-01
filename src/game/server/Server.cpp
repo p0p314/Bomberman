@@ -145,12 +145,29 @@ void Server::run()
                                 delete client;
                             } 
                         }              
-                        checkPacketFromPlayers();                    
+                        checkPacketFromPlayers(); 
+                        if(_playerList->empty()) returnToMenu();                   
                     }
                 }                  
             }
             while(!_endOfGame)
-                checkPacketFromPlayers();         
+            {
+                checkPacketFromPlayers(); 
+                if(_forcedExit == static_cast<sf::Uint8>(0))
+                    if(!_playerList->empty())
+                    {
+                        sf::Packet packet;
+                        packet.clear();
+                        packet << quiteGame;
+                        std::cout <<"\t liste non vide"<< std::endl;
+                        for(std::pair  player : *_playerList)
+                        {
+                            player.first->getSocket()->send(packet);
+                            std::cout <<"\tnotif envoyee "<< std::endl;
+                        }
+                    }
+                if(_playerList->empty()) returnToMenu();        
+            }
         }
     }
 }
@@ -175,6 +192,7 @@ void Server::checkPacketFromPlayers()
                     if(_packetType == quiteGame){
                         if(debug)std::cout << " quiteGame : ";
                         clientDisconnect(client, it, packet); 
+                        if(it == _playerList->end()) return;                       
                     }
 
                     else if(_packetType == action )
@@ -214,6 +232,7 @@ void Server::checkPacketFromPlayers()
             case sf::Socket::Disconnected : 
                 if(debug)std::cout << " disconnected : " << std::endl;
                 clientDisconnect(client, it, packet);
+                if(it == _playerList->end()) return;    
                 break;
                 
             case sf::Socket::Error : 
@@ -272,23 +291,16 @@ void Server::clientDisconnect(std::pair<Player*,sf::Uint8> client,
     sf::TcpSocket * clientSocket = client.first->getSocket();
     std::cout <<"\tdeconnexion de " << clientSocket->getRemoteAddress()<< std::endl;
     
-    sf::Uint8 forcedExit;
-    packet >> forcedExit;
-    std::cout <<"\tsortie forcee ?  " << static_cast<int>(forcedExit)<< std::endl;
-    packet.clear();
-    packet << quiteGame;
+    packet >> _forcedExit;
+    std::cout <<"\tsortie forcee ?  " << static_cast<int>(_forcedExit)<< std::endl;
     
     clientSocket->disconnect();
-    it = _playerList->erase(it);                                                       
+    it = _playerList->erase(it); 
+    if(it == _playerList->end()) return;                                                      
     _selector.remove(*clientSocket);
 
     //! Lorsqu'un joueur se deconnecte, il force les autres à quitter la partie
-    if(forcedExit == static_cast<sf::Uint8>(0))
-        if(!_playerList->empty())
-            for(std::pair  player : *_playerList)
-                player.first->getSocket()->send(packet);
-
-    if(_playerList->empty()) returnToMenu();
+    
     
 }
 
@@ -308,6 +320,7 @@ void Server::initData()
     _cptListReady = 0;
     _idPlayer = 0;
     _selector.add(_listener);
+    _forcedExit = 2;
 }
 int main(int argc, char const *argv[])
 {
