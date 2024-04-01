@@ -62,7 +62,7 @@ class Server
         
 private: 
 
-    bool debug = true;
+    bool debug = false;
     sf::TcpListener _listener;
    
     sf::Uint8 _idHost = 0;

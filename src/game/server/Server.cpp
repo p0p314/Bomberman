@@ -211,10 +211,11 @@ void Server::checkPacketFromPlayers()
 
                     else if(_packetType == action )
                     {
-                        if(debug)std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
                         packet >> _idSender;
                         packet >> _actionType;
 
+                        std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
+                        
                         packet.clear();
                         if(client.second == _idSender)
                         {
@@ -327,12 +328,12 @@ void Server::DisconnectOthers()
         sf::Packet packet;
         packet.clear();
         packet << quiteGame;
-        std::cout <<"\t liste non vide"<< std::endl;
         for(std::pair  player : *_playerList)
         {
             player.first->getSocket()->send(packet);
-            std::cout <<"\tnotif envoyee "<< std::endl;
+            std::cout <<"\tnotif envoyee "<< std::endl;    
         }
+        _forcedExit = 2;
     }
 }
 
