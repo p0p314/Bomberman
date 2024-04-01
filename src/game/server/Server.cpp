@@ -165,21 +165,21 @@ void Server::checkPacketFromPlayers()
         std::pair client = *it;
         sf::TcpSocket * clientSocket = client.first->getSocket();
         sf::Socket::Status status = clientSocket->receive(packet);
-        std::cout << " check pour le client  : " << client.second << std::endl << "\t ";
+        if(debug)std::cout << " check pour le client  : " << client.second << std::endl << "\t ";
         switch (status)
         {
             case sf::Socket::Done :
-                std::cout << "paquet recu de : " << clientSocket->getRemoteAddress() << " --> ";
+                if(debug)std::cout << "paquet recu de : " << clientSocket->getRemoteAddress() << " --> ";
                 if(packet >> _packetType)
                 {
                     if(_packetType == quiteGame){
-                        std::cout << " quiteGame : ";
+                        if(debug)std::cout << " quiteGame : ";
                         clientDisconnect(client, it); 
                     }
 
                     else if(_packetType == action )
                     {
-                        std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
+                        if(debug)std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
                         packet >> _idSender;
                         packet >> _actionType;
 
@@ -189,35 +189,35 @@ void Server::checkPacketFromPlayers()
                             packet << _packetType << _idSender << _actionType; //!!!!Ajouter identification du joueur
                             for(std::pair  player : *_playerList)
                                 player.first->getSocket()->send(packet);
-                            std::cout << "action partagee a tous les joueurs" << std::endl;
+                            if(debug)std::cout << "action partagee a tous les joueurs" << std::endl;
                         }
                     } 
                     else if(_packetType == listReady )
                     {
                         _cptListReady++;
-                        std::cout << "liste prete | " << _cptListReady << " prete(s)" << std::endl;
+                        if(debug)std::cout << "liste prete | " << _cptListReady << " prete(s)" << std::endl;
                         if(_cptListReady == _maxPlayers)
                         {
                             sf::Packet packet;
                             packet << startGame;
                             sf::sleep(sf::milliseconds(500));
-                            std::cout << "Tous le monde est pret, debut dans 3 secondes" <<std::endl;
+                            if(debug)std::cout << "Tous le monde est pret, debut dans 3 secondes" <<std::endl;
                             for(auto & player : *_playerList)
                                 player.first->getSocket()->send(packet);
 
                         }  
-                    } else std::cout<< static_cast<int>(_packetType) << std::endl;
+                    } else if(debug) std::cout<< static_cast<int>(_packetType) << std::endl;
                             
                 }
                 break;
 
             case sf::Socket::Disconnected : 
-                std::cout << " disconnected : " << std::endl;
+                if(debug)std::cout << " disconnected : " << std::endl;
                 clientDisconnect(client, it);
                 break;
                 
             case sf::Socket::Error : 
-                std::cout <<"erreur avec le client : " << static_cast<int>(client.second) <<std::endl;
+                if(debug)std::cout <<"erreur avec le client : " << static_cast<int>(client.second) <<std::endl;
                 std::cerr;
                 break;
 

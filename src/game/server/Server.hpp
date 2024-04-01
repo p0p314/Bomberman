@@ -61,6 +61,8 @@ class Server
         friend sf::Packet& operator >>(sf::Packet& packet, Server& server);
         
 private: 
+
+    bool debug = false;
     sf::TcpListener _listener;
    
     sf::Uint8 _idHost = 0;
@@ -86,6 +88,7 @@ private:
          _endOfGame = false,
          _inLobby = true;
     void initData();
+
     void returnToMenu();
     void clientDisconnect(std::pair<Player*,sf::Uint8> client,
                          std::vector<std::pair<Player *, sf::Uint8>>::iterator it);
