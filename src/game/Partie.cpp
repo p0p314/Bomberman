@@ -20,16 +20,8 @@ Partie::Partie(sf::RenderWindow * window, Player * player, sf::Uint8 typeOfPlaye
     
             _level = new Monde();
             _level->initialisation();
-
-             if (_characterList.size() != _numberOfPlayer)
-            {
-                Personnage::skin skins[] = {Personnage::titi,Personnage ::toto};
-                for (int j = 0; j < _numberOfPlayer; j++)
-                {
-                    Personnage *p = new Personnage(_player,_level, skins[j]);
-                    _characterList.push_back(p);
-                }
-            }
+            createCharacters();
+            
         }
     else returnToMenu();  
 }
@@ -56,6 +48,19 @@ Monde * Partie::getLevel()
     return _level;
 }
 
+void Partie::createCharacters()
+{
+    if(_characterList.size() != _numberOfPlayer)
+    {
+        Personnage::skin skins[] = {Personnage::titi,Personnage ::toto};
+        for (int j = 0; j < _numberOfPlayer; j++)
+        {
+            Personnage *p = new Personnage(_player,_level, skins[j]);
+            _characterList.push_back(p);
+        }
+    }
+}
+
 int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une partie.
 {
 
@@ -64,32 +69,24 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
     
     std::cout << "dans run " << std::endl;
 
-    sf::Packet packet;
-    packet << static_cast<sf::Uint8>(3);
-    if(!_exit)
-    {
-        _player->getSocket()->setBlocking(true);
-        if(_player->getSocket()->send(packet) == sf::Socket::Done)
-            std::cout << "info liste prete envoye" << std::endl;
-         else std::cout << "echec envoi info liste prete " << std::endl;
-        _player->getSocket()->setBlocking(false);
-    }
+   
+    if(!_exit && _characterList.size() == _numberOfPlayer)
+        _player->listReady();
+    
  
-    packet.clear();  
     while (!_exit )
     { 
-        synchronisation();
-        if(_synchronised)
-        {
-            float dt = clock.getElapsedTime().asSeconds();
-            HandleEvents(event, dt); 
-            if(!checkRecievedPacket(dt));
-                Update(dt);
-            clock.restart();
-        }
+  
+        float dt = clock.getElapsedTime().asSeconds();
+        HandleEvents(event, dt); 
+        if(!checkRecievedPacket(dt));
+            Update(dt);
+        clock.restart();
+        
         Draw(); 
     }
-    _player->quiteGame(_forcedExit);
+    std::cout << _player->numberOfActionSent << " || " << _player->numberOfActionRecieved << std::endl;
+    _player->exitGame(_forcedExit);
 
     return _exitToMenu;
 }
@@ -151,6 +148,8 @@ bool Partie::checkRecievedPacket(float dt)
                     if(charchater->getSkin() == static_cast<int>(_idSender))
                     {
                         charchater->Update(dt, static_cast<int>(_action));
+                        if(charchater->getSkin() == static_cast<int>(_player->getID()))
+                            _player->numberOfActionRecieved++;
                         return true;
                     }                   
                     
@@ -161,30 +160,6 @@ bool Partie::checkRecievedPacket(float dt)
     return false;
 }
 
-void Partie::synchronisation()
-{
-    sf::Packet packet;
-    if (!_synchronised)
-    {
-        if(_player->getSocket()->receive(packet) == sf::Socket::Done)
-        {    
-            if(packet >> _startGame )
-                if(_startGame == static_cast<int>(4))
-                {
-                    sf::Clock synchronisation;
-                    float dt = 0.f;  
-                    while(synchronisation.getElapsedTime().asSeconds() < 3)
-                    {
-                        
-                        
-                    }//!Afficher le compteur sur l'ecran de jeu
-                     std::cout << "jouer" << std::endl;
-                    _synchronised = true;
-                    _allowingMovement = true;
-                }
-        }
-    }
-}
 
 void Partie::HandleEvents(sf::Event event, float dt)
 {
@@ -197,7 +172,10 @@ void Partie::HandleEvents(sf::Event event, float dt)
             } 
             if(_synchronised)
                 for(Personnage * charchater : _characterList) 
-                    charchater->actions(event, _allowingMovement, dt);
+                    if(charchater->getSkin() == static_cast<int>(_player->getID()))
+                        charchater->actions(event, dt);                     //!Utiliser player->character à la place
+                           
+                        
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Delete))
             {
@@ -205,11 +183,44 @@ void Partie::HandleEvents(sf::Event event, float dt)
                 _exitToMenu = true;
             }
     }
+
+    if(!_synchronised && !_startingGame)
+    {
+        sf::Packet packet;
+        if(_player->getSocket()->receive(packet) == sf::Socket::Done)
+        {    
+            if(packet >> _startGame )
+                if(_startGame == static_cast<int>(4))
+                    _startingGame = true;
+
+        }
+    }
+
 }
 
 void Partie::Update(float dt)
 {
  
+    if(_startingGame)
+    {
+        _startingGameCounter += dt;
+        
+        if(_gameCounter > 0)
+        {
+            if(_startingGameCounter >= _timeToChangeCount)
+            {
+                std::cout <<  _gameCounter-- <<std::endl;
+                _startingGameCounter = 0;
+            }
+            //!Afficher le compteur sur l'ecran de jeu
+        } 
+        else
+        {
+            std::cout << "jouer" <<std::endl;
+            _synchronised = true;
+            _startingGame = false;
+        }
+    }
     for (Personnage *character : _characterList)
         character->Update(dt);
     

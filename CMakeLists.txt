@@ -19,6 +19,7 @@ add_executable(Bomberman src/main.cpp
                          src/game/carte/Monde.cpp
                          src/game/carte/TileMap.cpp
                          src/game/player/Player.cpp
+                         src/game/player/Debouncer.cpp
                          src/game/menu/MainMenu.cpp
                          src/game/lobby/Lobby.cpp
                          src/game/elements/bombe/Bombe.cpp
@@ -26,7 +27,9 @@ add_executable(Bomberman src/main.cpp
                          src/game/elements/personnage/Personnage.cpp )
  
 add_executable(Server src/game/server/Server.cpp
-                     src/game/player/Player.cpp)
+                      src/game/player/Player.cpp
+                      src/game/player/Debouncer.cpp
+                     )
 
 target_link_libraries(Bomberman PRIVATE sfml-graphics sfml-window sfml-network sfml-system )
 target_link_libraries(Server PRIVATE  sfml-graphics sfml-network)

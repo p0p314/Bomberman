@@ -2,6 +2,7 @@
 
 #include "../elements/personnage/Personnage.hpp"
 #include "../server/Server.hpp" 
+#include "Debouncer.hpp"
 #include <SFML/Graphics.hpp>
 
 class Player
@@ -31,7 +32,11 @@ class Player
         bool signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers = 0);
         void listReady();
         void action(sf::Uint8 typeOfAction, float dt);
-        void quiteGame(bool forcedExit);
+        void exitGame(bool forcedExit);
+
+        int numberOfActionRecieved = 0;
+        int  numberOfActionSent = 0;
+
 
  private :
     sf::TcpSocket * _client;
@@ -48,4 +53,7 @@ class Player
 
     float _elapsedTimeKeyPressed = 0;
     float _timeBeforeNewAction = 0.250f;
+
+
+    Debouncer _debouncer;
 };

@@ -38,6 +38,7 @@ void Server::run()
                 if(_playerList->size() == static_cast<int>(_maxPlayers))
                 {
                     startPlaying();
+                    startPlaying();
                     continue;
                 }   
                     
