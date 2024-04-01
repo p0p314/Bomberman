@@ -22,12 +22,12 @@ Server::~Server()
 
 void Server::run()
 {
-    //! Boucle permanente
+  
     while(_serverOpen)
     {
         std::cout<< "Ecoute sur le port " << _listener.getLocalPort() <<std::endl;
+        
         initData();
-        //!Boucle de jeu
         while(!_endOfGame)
         {   
             std::cout<< "Cree une nouvelle partie "<<std::endl;
@@ -37,141 +37,152 @@ void Server::run()
                 
                 if(_playerList->size() == static_cast<int>(_maxPlayers))
                 {
-                    sf::Packet packet;
-                    std::cout << "Envoi paquet pour creation de liste" <<std::endl;
-                    packet << allPlayersPresent << static_cast<sf::Uint8>(_playerList->size());
-                    for(std::pair  player : *_playerList)
-                        player.first->getSocket()->send(packet);
-                    _inLobby = false;
-                }
-
-                if(_inLobby)
-                {
-
-                    if(_selector.wait())
-                    {                            
-                        std::cout<< "listener est pret" << std::endl;
-
-                        if(_selector.isReady(_listener))
-                        {
-                            sf::TcpSocket * client = new sf::TcpSocket();
-                            sf::Packet packet;
-                            std::cout <<"listener ready" << std::endl;
-
-                            if(_listener.accept(*client) == sf::Socket::Done){
-                                std::cout<< "connexion de "<< client->getRemoteAddress() << std::endl;
-
-                                if(!_playerList->empty())
-                                {
-                                    if(_playerList->size() >= _maxPlayers)
-                                    {
-                                        client->disconnect();
-                                        delete client;
-                                        continue;
-                                    }
-                                }
-
-
-                                std::cout<< "Connecte, attend paquet" << std::endl;
-                                auto status = client->receive(packet);
-                                if(status == sf::Socket::Done)
-                                {
-                                    //! Quand la partie est crée - ajout de l'host
-                                    if(_playerList->empty())
-                                    {                          
-                                        std::cout<< "attend paquet de l'host" << std::endl;
-                                        //! Verification du type de paquet
-                                        if(packet >> _packetType >> _playerType >> _maxPlayers)
-                                        {                
-                                            if(_packetType == newPlayer && _playerType == host && _maxPlayers >= _minPlayers )
-                                            {
-                                                newClient(client);
-                                                continue;
-                                            }                        
-                                            else
-                                            {
-                                                //! Verification de la cohérence des données
-                                                packetError(client, contents, _packetContentError);                                    
-                                                returnToMenu();
-                                                continue;
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                             //! Taille de paquet incorrecte
-                                            packetError(client, size, _packetTypeError);  
-                                            returnToMenu();                                 
-                                            continue;
-                                        }                  
-                                    } 
-                                    else if(!_playerList->empty())
-                                    {
-                                        //! ajout des invités
-                                        if(packet >> _packetType >> _playerType )
-                                        {
-                                            if(_packetType == newPlayer && _playerType == guest )
-                                            {
-                                                newClient(client);
-                                                packet.clear();
-                                                continue;
-                                            } 
-                                            else
-                                            {
-                                                packetError(client,contents, _packetContentError);
-                                                continue;  
-                                            }
-                                        }
-                                        else
-                                        {
-                                            packetError(client,size, _packetTypeError);
-                                            continue;
-                                        }  
-                                    }
-                                } else if(status == sf::Socket::Done) std::cout << "deco"<<std::endl;
-                                else if(status ==sf::Socket::Error) std::cout << "erreur" <<std::endl;
-                                else
-                                {
-                                    sf::Uint8 cleanBuffer;
-                                    packet >> cleanBuffer;
-                                    std::cout  << "code " << static_cast<int>(status)<< std::endl;
-                                    std::cout <<"\tcontient " << cleanBuffer;
-                                } 
-                            } 
-                            else
-                            {
-                                std::cout  << "connexion impossible" << std::endl;
-                                std::cerr;
-                                delete client;
-                            } 
-                        }              
-                        checkPacketFromPlayers(); 
-                        if(_playerList->empty()) returnToMenu();                   
-                    }
-                }                  
+                    startGame();
+                    continue;
+                }   
+                    
+                waitingForPlayers();
+                                  
             }
             while(!_endOfGame)
             {
                 checkPacketFromPlayers(); 
-                if(_forcedExit == static_cast<sf::Uint8>(0))
-                    if(!_playerList->empty())
-                    {
-                        sf::Packet packet;
-                        packet.clear();
-                        packet << quiteGame;
-                        std::cout <<"\t liste non vide"<< std::endl;
-                        for(std::pair  player : *_playerList)
-                        {
-                            player.first->getSocket()->send(packet);
-                            std::cout <<"\tnotif envoyee "<< std::endl;
-                        }
-                    }
+                if(_forcedExit == static_cast<sf::Uint8>(0)) DisconnectOthers();
                 if(_playerList->empty()) returnToMenu();        
             }
         }
     }
 }
 
+void Server::waitingForPlayers()
+{
+    if(_selector.wait())
+    {                            
+        std::cout<< "listener est pret" << std::endl;
+
+        if(_selector.isReady(_listener))
+           newPlayerTryingToJoin();                        
+                      
+        checkPacketFromPlayers(); 
+        if(_forcedExit == static_cast<sf::Uint8>(0)) DisconnectOthers();
+        if(_playerList->empty()) returnToMenu();                   
+    }
+}
+
+void Server::newPlayerTryingToJoin()
+{
+    std::cout <<"listener ready" << std::endl;
+    sf::TcpSocket * client = new sf::TcpSocket();
+    sf::Socket::Status status = _listener.accept(*client);
+    if(status == sf::Socket::Done){
+        std::cout<< "connexion de "<< client->getRemoteAddress() << std::endl;
+
+        if(!_playerList->empty())
+        {
+            refuseNewPlayer(client);
+            return;
+        }
+                
+        acceptNewPlayer(client);
+        return;
+        
+    } else delete client;
+}
+
+void Server::refuseNewPlayer(sf::TcpSocket * client)
+{
+    if(_playerList->size() >= _maxPlayers)
+    {
+        client->disconnect();
+        delete client;
+        return;
+    }
+}
+
+void Server::acceptNewPlayer(sf::TcpSocket * client)
+{
+    sf::Packet packet;
+    
+    std::cout<< "Connecte, attend paquet" << std::endl;
+    auto status = client->receive(packet);
+    if(status == sf::Socket::Done)
+    {
+        //! Quand la partie est crée - ajout de l'host
+        if(_playerList->empty())
+        { 
+            hasHost(client, packet);                         
+            return;              
+        } 
+        else if(!_playerList->empty())
+        {
+            hasGuest(client, packet);
+            return;
+        }
+    } 
+}
+
+void Server::hasHost(sf::TcpSocket * client, sf::Packet packet)
+{
+    std::cout<< "paquet pour host recu" << std::endl;
+    //! Verification du type de paquet
+    if(packet >> _packetType >> _playerType >> _maxPlayers)
+    {                
+        if(_packetType == newPlayer && _playerType == host && _maxPlayers >= _minPlayers )
+        {
+            newClient(client);
+            return;
+        }                        
+        else
+        {
+            //! Verification de la cohérence des données
+            packetError(client, contents, _packetContentError);                                    
+            returnToMenu();
+            return;
+        }
+    }
+    else
+    {
+         //! Taille de paquet incorrecte
+        packetError(client, size, _packetTypeError);  
+        returnToMenu();                                 
+        return;
+    }    
+}
+
+void Server::hasGuest(sf::TcpSocket * client, sf::Packet packet)
+{
+    std::cout<< "paquet pour gest recu" << std::endl;
+    //! ajout des invités
+    if(packet >> _packetType >> _playerType )
+    {
+        if(_packetType == newPlayer && _playerType == guest )
+        {
+            newClient(client);
+            packet.clear();
+            return;
+        } 
+        else
+        {
+            packetError(client,contents, _packetContentError);
+            return;  
+        }
+    }
+    else
+    {
+        packetError(client,size, _packetTypeError);
+        return;
+    }  
+}
+
+void Server::startGame()
+{
+    sf::Packet packet;
+    std::cout << "Envoi paquet pour creation de liste" <<std::endl;
+    packet << allPlayersPresent << static_cast<sf::Uint8>(_playerList->size());
+    for(std::pair  player : *_playerList)
+        player.first->getSocket()->send(packet);
+    _inLobby = false;
+}
 
 void Server::checkPacketFromPlayers()
 {
@@ -247,6 +258,7 @@ void Server::checkPacketFromPlayers()
         it++;    
     }  
 }
+
 void Server::packetError(sf::TcpSocket * client, Server::errorCode code, std::string message)
 {
     sf::Packet packet;
@@ -299,9 +311,26 @@ void Server::clientDisconnect(std::pair<Player*,sf::Uint8> client,
     if(it == _playerList->end()) return;                                                      
     _selector.remove(*clientSocket);
 
-    //! Lorsqu'un joueur se deconnecte, il force les autres à quitter la partie
+   
     
     
+}
+
+void Server::DisconnectOthers()
+{
+
+    if(!_playerList->empty())
+    {
+        sf::Packet packet;
+        packet.clear();
+        packet << quiteGame;
+        std::cout <<"\t liste non vide"<< std::endl;
+        for(std::pair  player : *_playerList)
+        {
+            player.first->getSocket()->send(packet);
+            std::cout <<"\tnotif envoyee "<< std::endl;
+        }
+    }
 }
 
 void Server::returnToMenu()
