@@ -109,11 +109,14 @@ bool Player::signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers)
     
 }
 void Player::listReady(){}
-void Player::quiteGame()
+void Player::quiteGame(bool forcedExit)
 {
     sf::Packet  packet;
     sf::Uint8 quiteGame = 6;
     packet << quiteGame;
+    if(forcedExit) packet << sf::Uint8(1);
+    else packet << sf::Uint8(0);
+    
     if(_client->send(packet) == sf::Socket::Done)
     {
         std::cout << "paquet quiteGame envoye" << std::endl;

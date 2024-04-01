@@ -24,8 +24,11 @@ class Partie
                   _typeOfPacket,
                   _playerDisconnected,
                   _startGame;
+                  
         
-        bool _synchronised;
+        bool _synchronised,
+             _forcedExit = false;
+             
         std::string _errorMessage;
 
 

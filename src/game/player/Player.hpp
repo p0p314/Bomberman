@@ -31,7 +31,7 @@ class Player
         bool signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers = 0);
         void listReady();
         void action(sf::Uint8 typeOfAction, float dt);
-        void quiteGame();
+        void quiteGame(bool forcedExit);
 
  private :
     sf::TcpSocket * _client;
