@@ -62,7 +62,7 @@ class Server
         
 private: 
 
-    bool debug = false;
+    bool debug = true;
     sf::TcpListener _listener;
    
     sf::Uint8 _idHost = 0;
@@ -76,7 +76,9 @@ private:
               _maxPlayers = 1,
               _minPlayers = 2,
               _packetType,
-              _actionType;
+              _actionType,
+              _forcedExit;
+
 
     std::string _packetMessage,
                 _packetContentError = "Erreur dans les donnee du paquet",
