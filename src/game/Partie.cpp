@@ -8,6 +8,7 @@
 */
 Partie::Partie(sf::RenderWindow * window, Player * player, sf::Uint8 typeOfPlayer) : _window(window), _player(player)
 {
+    std::cout<< "creation partie" << std::endl;
     if(_player->joinAGame())
         if(!_player->signalArrival(typeOfPlayer,static_cast<sf::Uint8>(2)))  
             returnToMenu();

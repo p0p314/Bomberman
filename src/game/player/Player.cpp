@@ -64,6 +64,7 @@ void Player::getPacket()
 
 bool Player::joinAGame()
 {
+        _client->setBlocking(true);
         auto status = _client->connect(sf::IpAddress("176.143.129.142"), 2000,sf::Time(sf::seconds(2)));
         if( status == sf::Socket::Done)
         {  
@@ -116,7 +117,7 @@ void Player::quiteGame(bool forcedExit)
     packet << quiteGame;
     if(forcedExit) packet << sf::Uint8(1);
     else packet << sf::Uint8(0);
-    
+
     if(_client->send(packet) == sf::Socket::Done)
     {
         std::cout << "paquet quiteGame envoye" << std::endl;
