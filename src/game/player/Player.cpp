@@ -1,10 +1,12 @@
 #include "Player.hpp"
 
-Player::Player(){
+Player::Player() : _debouncer(0.25f)
+{
     _client = new sf::TcpSocket();
  }
 
-Player::Player(sf::TcpSocket * socket, sf::IpAddress IPadress){
+Player::Player(sf::TcpSocket * socket, sf::IpAddress IPadress) : _debouncer(0.25f)
+{
     _client = socket;
     _remoteIP = IPadress;
     
@@ -109,12 +111,24 @@ bool Player::signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers)
     }
     
 }
-void Player::listReady(){}
-void Player::quiteGame(bool forcedExit)
+void Player::listReady()
+{
+    sf::Packet packet;
+    packet << static_cast<sf::Uint8>(3);
+    
+    _client->setBlocking(true);
+   
+    if(_client->send(packet) == sf::Socket::Done)
+        std::cout << "info liste prete envoye" << std::endl;
+    else std::cout << "echec envoi info liste prete " << std::endl;
+    
+    _client->setBlocking(false);
+}
+void Player::exitGame(bool forcedExit)
 {
     sf::Packet  packet;
-    sf::Uint8 quiteGame = 6;
-    packet << quiteGame;
+    sf::Uint8 exitGame = 6;
+    packet << exitGame;
     if(forcedExit) packet << sf::Uint8(1);
     else packet << sf::Uint8(0);
 
@@ -132,12 +146,10 @@ void Player::quiteGame(bool forcedExit)
 
 void Player::action(sf::Uint8 typeOfAction, float dt)
 {
-    
-    _elapsedTimeKeyPressed += dt; 
-    
-    if((_elapsedTimeKeyPressed > _timeBeforeNewAction) || typeOfAction == sf::Uint8(0))
-    {
+  
 
+    if(_debouncer.update(dt)){
+   
         sf::Packet packet;
         sf::Uint8 actionPacket = 5;
 
@@ -145,12 +157,11 @@ void Player::action(sf::Uint8 typeOfAction, float dt)
         if(_client->send(packet) == sf::Socket::Done)
         {
             std::cout << "paquet action envoye, mon id "<< static_cast<int>(_ID) << std::endl;
+            if(typeOfAction != sf::Uint8(0)) _debouncer.trigger();
+            numberOfActionSent++;
         }
-        else 
-        {
-            std::cout << "paquet action echoue" << std::endl; 
-        }
-        if(typeOfAction != sf::Uint8(0)) _elapsedTimeKeyPressed = 0;
+        else  std::cout << "paquet action echoue" << std::endl; 
+          
     }
 
     

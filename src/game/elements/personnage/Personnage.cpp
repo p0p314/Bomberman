@@ -116,9 +116,9 @@ void Personnage::move(sf::Vector2f movement)
         _sprite.move(-movement);
 }
 
-void Personnage::actions(sf::Event event, bool allowingMovement, float dt)
+void Personnage::actions(sf::Event event, float dt)
 {   
-        if(allowingMovement && !_dying){  
+        if(!_dying){  
 
             if((sf::Keyboard::isKeyPressed(sf::Keyboard::Z))) _player->action(sf::Uint8(1),dt);
         
@@ -159,37 +159,35 @@ void Personnage::Update(float dt, int dirFromPacket)
     }
     else if((dirFromPacket > 0 && dirFromPacket < 10) && !_dying ){
         float distance = _speed * dt;
-        sf::Vector2f movement(0.0f,0.0f);
-       
-      
-        if(dirFromPacket == 1)
-        {
-            _posSpriteAnimation.y = Up;
-            movement.y -=distance;
-        } 
-            
-        if(dirFromPacket == 2)
-        {
-            _posSpriteAnimation.y = Right;
-            movement.x += distance;
-            
-        } 
-        if(dirFromPacket == 3)
-        {
-            _posSpriteAnimation.y = Down;
-            movement.y += distance;
-        } 
-        if(dirFromPacket == 4)
-        {
-            _posSpriteAnimation.y = Left;
-            movement.x -= distance;
-        } 
-       
+        sf::Vector2f movement(0.0f, 0.0f);
+
+        switch (dirFromPacket) {
+            case 1:
+                _posSpriteAnimation.y = Up;
+                movement.y -= distance;
+                break;
+            case 2:
+                _posSpriteAnimation.y = Right;
+                movement.x += distance;
+                break;
+            case 3:
+                _posSpriteAnimation.y = Down;
+                movement.y += distance;
+                break;
+            case 4:
+                _posSpriteAnimation.y = Left;
+                movement.x -= distance;
+                break;
+            default:
+                break;
+        }
+
         _moving = true;
         move(movement);
+
     }  else _moving = false;
     
-    dirFromPacket = 10; //!  = Aucune action
+    dirFromPacket = 10; //!  = Aucune action 
     //!Gestion animation de déplacement
     if(_elapsedTime > _timeToChangeFrame)
     {

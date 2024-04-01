@@ -97,7 +97,7 @@ private:
     void acceptNewPlayer(sf::TcpSocket * client);
     void hasHost(sf::TcpSocket * client, sf::Packet packet);
     void hasGuest(sf::TcpSocket * client, sf::Packet packet);
-    void startGame();
+    void startPlaying();
     void clientDisconnect(std::pair<Player*,sf::Uint8> client,
                          std::vector<std::pair<Player *, sf::Uint8>>::iterator it,
                          sf::Packet packet);

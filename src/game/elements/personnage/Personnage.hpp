@@ -42,7 +42,7 @@ public :
    
     sf::FloatRect getCollisionZone();
     void updateCollisionZone();
-    void actions(sf::Event, bool allowingMovement, float dt);
+    void actions(sf::Event, float dt);
 
     bool owner(sf::Uint8 id);
     Player * getOwner();

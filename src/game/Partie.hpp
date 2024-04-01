@@ -28,7 +28,7 @@ class Partie
         
         bool _synchronised,
              _forcedExit = false;
-             
+
         std::string _errorMessage;
 
 
@@ -39,14 +39,19 @@ class Partie
         
         std::vector<Personnage*> _characterList;
     
-        bool _allowingMovement = false,
-             _exit = false,
-             _exitToMenu = true;
+        bool _exit = false,
+             _exitToMenu = true,
+             _startingGame;
 
+        float _startingGameCounter =0.f,
+              _timeToChangeCount = 1.f;
+
+        int _gameCounter = 3;
+
+        void createCharacters();
         void returnToMenu();
         bool checkRecievedPacket(float dt = 0);
-        void disconnectFromServer();
-        void synchronisation();
+        
         void HandleEvents(sf::Event, float dt =0);
         void Update(float dt);
         void Draw();
