@@ -88,7 +88,7 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
         }
         Draw(); 
     }
-    _player->quiteGame();
+    _player->quiteGame(_forcedExit);
 
     return _exitToMenu;
 }
@@ -134,7 +134,8 @@ bool Partie::checkRecievedPacket(float dt)
                 }
                 else
                 {
-                    std::cout << "Un joueur a quiitte la partie : "<< std::endl;
+                    std::cout << "Un joueur a quiitte la partie : Fin de la partie"<< std::endl;
+                    _forcedExit = true;
                 }
                 _exit = true;
                 _exitToMenu = true;
