@@ -78,7 +78,7 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
     { 
   
         float dt = clock.getElapsedTime().asSeconds();
-        HandleEvents(event, dt); 
+        HandleEvents(event, dt);
         if(!checkRecievedPacket(dt));
             Update(dt);
         clock.restart();
@@ -173,7 +173,8 @@ void Partie::HandleEvents(sf::Event event, float dt)
             if(_synchronised)
                 for(Personnage * charchater : _characterList) 
                     if(charchater->getSkin() == static_cast<int>(_player->getID()))
-                        charchater->actions(event, dt);                     //!Utiliser player->character à la place
+                        if(_player->getDebouncer().update(dt)) 
+                            charchater->actions(event, dt);                     //!Utiliser player->character à la place
                            
                         
 
