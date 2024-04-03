@@ -73,25 +73,27 @@ void Partie::createCharacters()
 
 int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une partie.
 {
-
+    sf::Music music;
     sf::Event event;
     sf::Clock clock;
     std::cout << "dans run " << std::endl;
 
-   
-    if(!_exit && _characterList.size() == _numberOfPlayer)
+    if (!music.openFromFile("assets/music/cruising-down-8bit-lane-159615.ogg"))
+        return -1;
+    music.setVolume(30);
+    music.play();
+
+    if (!_exit && _characterList.size() == _numberOfPlayer)
         _player->listReady();
-    
- 
+
     while (!_exit )
-    { 
-  
+    {
         float dt = clock.getElapsedTime().asSeconds();
         HandleEvents(event, dt);
         checkRecievedPacket(dt);     
         clock.restart();
-        
-        Draw(); 
+
+        Draw();
     }
     std::cout << _player->numberOfActionSent << " || " << _player->numberOfActionRecieved << std::endl;
     

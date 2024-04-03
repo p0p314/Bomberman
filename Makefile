@@ -12,7 +12,8 @@ compile:./src/main.cpp
 	g++ -c src/game/player/Player.cpp
 	g++ -c src/game/player/Debouncer.cpp
 	g++ -c src/game/lobby/Lobby.cpp
-	g++ Graphics.o Partie.o element.o Lobby.o Player.o MainMenu.o Bombe.o Debouncer.o Personnage.o Ray.o TileMap.o Monde.o main.o  -o app -lsfml-graphics -lsfml-window -lsfml-system -lsfml-network
+	g++ -c src/game/GUI/Gui.cpp
+	g++ Graphics.o Partie.o element.o Lobby.o Player.o MainMenu.o Bombe.o Debouncer.o Personnage.o Ray.o TileMap.o Monde.o main.o Gui.o  -o app -lsfml-graphics 	-lsfml-audio -lsfml-window -lsfml-system -lsfml-network
 	make clean
 
 run:

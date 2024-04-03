@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <SFML/System.hpp>
 #include "carte/Monde.h"
 #include "elements/personnage/Personnage.hpp"
@@ -65,7 +66,6 @@ class Partie
         Partie() = delete;
         Partie(sf::RenderWindow * window, Player * joiner, sf::Uint8 typeOfplayer = 0);
         ~Partie();
-
         std::vector<Personnage*> getCharacterList();
         Monde * getLevel();
         int Run(); 
