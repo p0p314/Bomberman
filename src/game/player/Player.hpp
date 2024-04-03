@@ -34,6 +34,7 @@ class Player
         void action(sf::Uint8 typeOfAction, float dt);
         void exitGame(bool forcedExit);
 
+        Debouncer & getDebouncer();
         int numberOfActionRecieved = 0;
         int  numberOfActionSent = 0;
 

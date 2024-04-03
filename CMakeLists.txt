@@ -14,6 +14,7 @@ file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(Bomberman src/main.cpp 
                          src/game/Partie.cpp
+                         src/game/GUI/Gui.cpp
                          src/game/Graphics/Graphics.cpp 
                          src/game/elements/element.cpp
                          src/game/carte/Monde.cpp
@@ -26,6 +27,7 @@ add_executable(Bomberman src/main.cpp
                          src/game/elements/bombe/Ray.cpp
                          src/game/elements/personnage/Personnage.cpp )
  
+                         
 add_executable(Server src/game/server/Server.cpp
                       src/game/player/Player.cpp
                       src/game/player/Debouncer.cpp

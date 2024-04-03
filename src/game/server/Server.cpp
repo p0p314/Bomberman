@@ -38,6 +38,7 @@ void Server::run()
                 if(_playerList->size() == static_cast<int>(_maxPlayers))
                 {
                     startPlaying();
+                    startPlaying();
                     continue;
                 }   
                     
@@ -62,8 +63,8 @@ void Server::waitingForPlayers()
 
         if(_selector.isReady(_listener))
         {
-           newPlayerTryingToJoin();  
-                                 
+            newPlayerTryingToJoin();                        
+            return;
         }
                       
         checkPacketFromPlayers(); 
@@ -80,7 +81,7 @@ void Server::newPlayerTryingToJoin()
     if(status == sf::Socket::Done){
         std::cout<< "connexion de "<< client->getRemoteAddress() << std::endl;
 
-        if(!_playerList->empty())
+        if(!_playerList->empty() && _playerList->size() >= _maxPlayers)
         {
             refuseNewPlayer(client);
             return;
@@ -94,12 +95,12 @@ void Server::newPlayerTryingToJoin()
 
 void Server::refuseNewPlayer(sf::TcpSocket * client)
 {
-    if(_playerList->size() >= _maxPlayers)
-    {
-        client->disconnect();
-        delete client;
-        return;
-    }
+    
+    std::cout << "deconnexion de " << client->getRemoteAddress() << std::endl;
+    client->disconnect();
+    delete client;
+    return;
+
 }
 
 void Server::acceptNewPlayer(sf::TcpSocket * client)
@@ -211,10 +212,11 @@ void Server::checkPacketFromPlayers()
 
                     else if(_packetType == action )
                     {
-                        if(debug)std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
                         packet >> _idSender;
                         packet >> _actionType;
 
+                        std::cout << "action de " << static_cast<int>(client.second) << " avec id : " << static_cast<int>(_idSender) << std::endl;
+                        
                         packet.clear();
                         if(client.second == _idSender)
                         {
@@ -327,12 +329,12 @@ void Server::DisconnectOthers()
         sf::Packet packet;
         packet.clear();
         packet << quiteGame;
-        std::cout <<"\t liste non vide"<< std::endl;
         for(std::pair  player : *_playerList)
         {
             player.first->getSocket()->send(packet);
-            std::cout <<"\tnotif envoyee "<< std::endl;
+            std::cout <<"\tnotif envoyee "<< std::endl;    
         }
+        _forcedExit = 2;
     }
 }
 
