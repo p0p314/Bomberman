@@ -15,3 +15,5 @@ Player.o
 Server.o
 Ray.o
 TileMap.o
+Debouncer.o
+Makefile
