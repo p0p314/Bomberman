@@ -36,14 +36,18 @@ public :
     Bombe & getBombe();
     
     skin getSkin();
+    
+    int getLives();
     void startDeath();
     void dying(float dt);
     void respawn();
    
+
     sf::FloatRect getCollisionZone();
     void updateCollisionZone();
     void actions(sf::Event, float dt);
 
+    std::string getName();
     bool owner(sf::Uint8 id);
     Player * getOwner();
     void Update(float dt, int dirFromPaclet = 10);
@@ -63,7 +67,7 @@ private :
     int _spriteWidth = 16,
         _spriteHeight = 24;
 
-    int _speed = 200;
+    int _speed = 320;
     bool _moving = false,
          _bombInHand = true,
          _alive = true,
@@ -87,9 +91,10 @@ private :
     sf::FloatRect _collisionZone;
 
     void move(sf::Vector2f movement);
+    
     int quantiteBombe = 2,
         bouclier = 0,
-        viesRestantes = 3;
+        _lives = 3;
 
 };
 

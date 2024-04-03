@@ -80,7 +80,6 @@ void Personnage::dying(float dt)
 
     if(_dying)
     {
-        _alive = false;
         _sprite.setTexture(_textureAtlas);
         _sprite.setTextureRect(sf::IntRect(_posSpriteDeathAnimation*29,0,29,25));
         if(dt < 1 ) _posSpriteDeathAnimation = 1;
@@ -93,7 +92,7 @@ void Personnage::dying(float dt)
 
 void Personnage::respawn()
 {
-    viesRestantes--;
+    
     _dying = false;
     _alive = true;
     setPosition(_spawnPos);
@@ -105,8 +104,10 @@ void Personnage::respawn()
 
 void Personnage::startDeath()
 {
-    _posSpriteDeathAnimation = 1;
+    _lives--;
+    _alive = false;
     _dying = true;
+    _posSpriteDeathAnimation = 1;
 }
 
 void Personnage::move(sf::Vector2f movement)
@@ -227,7 +228,7 @@ void Personnage::Update(float dt, int dirFromPacket)
     for(std::pair bomb :_level->getBombList() )
         if(bomb.second->isFireVisible() && bomb.second->fireContains(*this) && _alive)
         {
-            startDeath();
+            startDeath(); 
             _elaspsedTimeDeath = 0;
         }   
      
@@ -254,6 +255,15 @@ void Personnage::draw(sf::RenderTarget & target, sf::RenderStates states) const
     
 }
 
+int Personnage::getLives()
+{
+    return _lives;
+}
+
+std::string Personnage::getName()
+{
+    return _name;
+}
 Player *  Personnage::getOwner()
 {
     return _player;

@@ -83,6 +83,7 @@ void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
         {
             Partie *partie = new Partie(_windowM, player, sf::Uint8(1)); // Rejoindre partie;
             _exit = !partie->Run();
+            return;
         }
         if (MainMenuSelected == 1 && sf::Keyboard::isKeyPressed(Keyboard::Enter))
         {
@@ -93,8 +94,9 @@ void MainMenu::HandleEvents() // Fonction qui gère les évèvenements du menu;
             //delete partie;
             return;
         }
-        if (MainMenuSelected == 2)
+        if (MainMenuSelected == 2  && sf::Keyboard::isKeyPressed(Keyboard::Enter))
         {
+            
         }
         if (MainMenuSelected == 3)
         {

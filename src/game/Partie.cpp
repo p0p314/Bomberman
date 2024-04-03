@@ -8,6 +8,8 @@
 */
 Partie::Partie(sf::RenderWindow * window, Player * player, sf::Uint8 typeOfPlayer) : _window(window), _player(player)
 {
+        
+    
     std::cout<< "creation partie" << std::endl;
     if(_player->joinAGame())
         if(!_player->signalArrival(typeOfPlayer,static_cast<sf::Uint8>(2)))  
@@ -21,7 +23,15 @@ Partie::Partie(sf::RenderWindow * window, Player * player, sf::Uint8 typeOfPlaye
             _level = new Monde();
             _level->initialisation();
             createCharacters();
-            
+           
+            _gameInfo = new Gui();
+            sf::Font * font = new sf::Font();
+            if(!font->loadFromFile("assets/fonts/LiberationMono-Bold.ttf"))
+            {
+                std::cerr << "Impossible de charger la font BondiBraveDemoRegular " <<std::endl;
+                std::exit(1);
+            }
+            _gameInfo->init(font, window->getSize().x, window->getSize().y);
         }
     else returnToMenu();  
 }
@@ -66,7 +76,6 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
 
     sf::Event event;
     sf::Clock clock;
-    
     std::cout << "dans run " << std::endl;
 
    
@@ -86,6 +95,7 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
         Draw(); 
     }
     std::cout << _player->numberOfActionSent << " || " << _player->numberOfActionRecieved << std::endl;
+    
     _player->exitGame(_forcedExit);
 
     return _exitToMenu;
@@ -170,7 +180,8 @@ void Partie::HandleEvents(sf::Event event, float dt)
                _exitToMenu = false;
                break;
             } 
-            if(_synchronised)
+            
+            if(_synchronised && _window->hasFocus())
                 for(Personnage * charchater : _characterList) 
                     if(charchater->getSkin() == static_cast<int>(_player->getID()))
                         if(_player->getDebouncer().update(dt)) 
@@ -206,7 +217,7 @@ void Partie::Update(float dt)
     {
         _startingGameCounter += dt;
         
-        if(_gameCounter > 0)
+        if(_gameCounter > -1)
         {
             if(_startingGameCounter >= _timeToChangeCount)
             {
@@ -222,10 +233,24 @@ void Partie::Update(float dt)
             _startingGame = false;
         }
     }
+
     for (Personnage *character : _characterList)
+    {
         character->Update(dt);
+        if(character->getLives() == 0) _endofGame = true;
+    }
+    
+    if(_endofGame) _synchronised = false;
+    
+    _gameInfo->updateStats(&_characterList);
+    
+      
     
 
+    if(_startingGame)
+    {
+        _gameInfo->updateStats(_gameCounter);
+    }
     
 }
 
@@ -242,5 +267,9 @@ void Partie::Draw()
     for (Personnage *character : _characterList)
         _window->draw(*character);
 
+    _window->draw(*_gameInfo);
+    
+    if(_startingGame) _window->draw(*_gameInfo);
+    
     _window->display();
 }
