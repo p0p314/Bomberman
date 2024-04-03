@@ -6,6 +6,7 @@
 #include "elements/personnage/Personnage.hpp"
 #include "server/Server.hpp"
 #include "lobby/Lobby.hpp"
+#include "GUI/Gui.hpp"
 #include <iostream>
 #include <mutex>
 #include <thread>
@@ -14,6 +15,7 @@ class Personnage;
 class Server;
 class Player;
 class Lobby;
+class Gui;
 class Partie
 {
     private: 
@@ -26,7 +28,7 @@ class Partie
                   _startGame;
                   
         
-        bool _synchronised,
+        bool _synchronised = false,
              _forcedExit = false;
 
         std::string _errorMessage;
@@ -41,12 +43,15 @@ class Partie
     
         bool _exit = false,
              _exitToMenu = true,
-             _startingGame;
+             _startingGame,
+             _endofGame = false;
 
         float _startingGameCounter =0.f,
               _timeToChangeCount = 1.f;
 
         int _gameCounter = 3;
+
+        Gui * _gameInfo;
 
         void createCharacters();
         void returnToMenu();
@@ -59,7 +64,6 @@ class Partie
     public: 
         Partie() = delete;
         Partie(sf::RenderWindow * window, Player * joiner, sf::Uint8 typeOfplayer = 0);
-        Partie(sf::RenderWindow * window, Player * joiner, sf::IpAddress server);
         ~Partie();
 
         std::vector<Personnage*> getCharacterList();

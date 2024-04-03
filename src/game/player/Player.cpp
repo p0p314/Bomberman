@@ -147,22 +147,20 @@ void Player::exitGame(bool forcedExit)
 void Player::action(sf::Uint8 typeOfAction, float dt)
 {
   
-
-    if(_debouncer.update(dt)){
-   
-        sf::Packet packet;
-        sf::Uint8 actionPacket = 5;
-
-        packet << actionPacket << _ID << typeOfAction;
-        if(_client->send(packet) == sf::Socket::Done)
-        {
-            std::cout << "paquet action envoye, mon id "<< static_cast<int>(_ID) << std::endl;
-            if(typeOfAction != sf::Uint8(0)) _debouncer.trigger();
-            numberOfActionSent++;
-        }
-        else  std::cout << "paquet action echoue" << std::endl; 
-          
+    sf::Packet packet;
+    sf::Uint8 actionPacket = 5;
+    packet << actionPacket << _ID << typeOfAction;
+    if(_client->send(packet) == sf::Socket::Done)
+    {
+        std::cout << "paquet action envoye, mon id "<< static_cast<int>(_ID) << std::endl;
+        if(typeOfAction != sf::Uint8(0)) _debouncer.trigger();
+        numberOfActionSent++;
     }
+    else  std::cout << "paquet action echoue" << std::endl; 
+            
+}
 
-    
+Debouncer & Player::getDebouncer()
+{
+    return _debouncer;
 }
