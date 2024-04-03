@@ -88,8 +88,7 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
   
         float dt = clock.getElapsedTime().asSeconds();
         HandleEvents(event, dt);
-        if(!checkRecievedPacket(dt));
-            Update(dt);
+        checkRecievedPacket(dt);     
         clock.restart();
         
         Draw(); 
@@ -107,7 +106,7 @@ void Partie::returnToMenu()
     _exitToMenu = true;
 }
 
-bool Partie::checkRecievedPacket(float dt)
+void Partie::checkRecievedPacket(float dt)
 {
     sf::Packet packet;
     if(_player->getSocket()->receive(packet) == sf::Socket::Done)
@@ -129,7 +128,6 @@ bool Partie::checkRecievedPacket(float dt)
                 if((_exit = _lobby->Run()))
                 {
                     _exitToMenu = _lobby->getExitToMenu();   
-                    return false;
                 }
             }  //Si deconnexion ou erreur
             else if(_typeOfPacket == static_cast<sf::Uint8>(6) || _typeOfPacket == static_cast<sf::Uint8>(7))
@@ -147,7 +145,6 @@ bool Partie::checkRecievedPacket(float dt)
                 }
                 _exit = true;
                 _exitToMenu = true;
-                return false;
             } 
             else if(_typeOfPacket == static_cast<sf::Uint8>(5)) //! Action de jeu
             {
@@ -160,14 +157,15 @@ bool Partie::checkRecievedPacket(float dt)
                         charchater->Update(dt, static_cast<int>(_action));
                         if(charchater->getSkin() == static_cast<int>(_player->getID()))
                             _player->numberOfActionRecieved++;
-                        return true;
+                        return;
                     }                   
                     
                  
             }else  std::cout <<"Type de paquet non pris en charge" << std::endl;
         } else std::cout <<"Erreur format du paquet" << std::endl;
-    } else return false;
-    return false;
+    } 
+    else Update(dt);
+    
 }
 
 

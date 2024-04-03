@@ -55,7 +55,7 @@ class Partie
 
         void createCharacters();
         void returnToMenu();
-        bool checkRecievedPacket(float dt = 0);
+        void checkRecievedPacket(float dt = 0);
         
         void HandleEvents(sf::Event, float dt =0);
         void Update(float dt);
