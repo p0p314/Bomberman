@@ -18,3 +18,4 @@ TileMap.o
 Debouncer.o
 Makefile
 Gui.o
+Server
