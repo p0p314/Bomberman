@@ -22,48 +22,48 @@ class Monde;
 class Player;
 class Personnage : public Element, public sf::Drawable
 {
-public : 
-   
+public:
     enum skin : int
     {
         titi = 0,
         toto
     };
 
-    Personnage() = delete;
-    Personnage(Player * player, Monde *monde, skin skin); //TODO: définir init pos au chargement de la map
-    void setPlayer(Player *);
-    Bombe & getBombe();
-    
-    skin getSkin();
-    
-    int getLives();
-    void startDeath();
-    void dying(float dt);
-    void respawn();
-   
+    Personnage() = delete;                               // Constructeur par défaut supprimé
+    Personnage(Player *player, Monde *monde, skin skin); // Constructeur avec paramètres
 
-    sf::FloatRect getCollisionZone();
-    void updateCollisionZone();
-    void actions(sf::Event, float dt);
+    void setPlayer(Player *);                                                            // Méthode pour définir le joueur associé
+    Bombe &getBombe();                                                                   // Méthode pour obtenir une référence à la bombe
+    skin getSkin();                                                                      // Méthode pour obtenir le skin du personnage
+    int getLives();                                                                      // Méthode pour obtenir le nombre de vies
+    void startDeath();                                                                   // Méthode pour démarrer l'animation de mort
+    void dying(float dt);                                                                // Méthode pour l'animation de mort
+    void respawn();                                                                      // Méthode pour la réapparition du personnage
+    sf::FloatRect getCollisionZone();                                                    // Méthode pour obtenir la zone de collision
+    void updateCollisionZone();                                                          // Méthode pour mettre à jour la zone de collision
+    void actions(sf::Event, float dt);                                                   // Méthode pour gérer les actions avec les événements
+    std::string getName();                                                               // Méthode pour obtenir le nom du personnage
+    bool owner(sf::Uint8 id);                                                            // Méthode pour vérifier le propriétaire
+    Player *getOwner();                                                                  // Méthode pour obtenir le propriétaire
+    void Update(float dt, int dirFromPaclet = 10);                                       // Méthode de mise à jour
+    void updateAnimation();                                                              // Méthode pour mettre à jour l'animation
+    virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override; // Méthode pour dessiner
 
-    std::string getName();
-    bool owner(sf::Uint8 id);
-    Player * getOwner();
-    void Update(float dt, int dirFromPaclet = 10);
-    void updateAnimation();
-    virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const override;
-    
-private : 
+private:
+    Monde *_level;     // Pointeur vers le monde
+    skin _skin;        // Skin du personnage
+    Bombe _bomb;       // Bombe associée au personnage
+    Player *_player;   // Joueur associé
+    std::string _name; // Nom du personnage
 
-    Monde * _level;
-    skin _skin; 
-    Bombe  _bomb;       
-    Player * _player;
-    std::string _name;
-    
-    enum Dir{Up = 0, Right, Down, Left};
-    
+    enum Dir
+    {
+        Up = 0,
+        Right,
+        Down,
+        Left
+    }; // Énumération pour les directions
+
     int _spriteWidth = 16,
         _spriteHeight = 24;
 
@@ -74,30 +74,23 @@ private :
          _dying = false;
 
     float _elapsedTime = 0.f,
-          _elaspsedTimeDeath = 0.f, 
-	      _timeToChangeFrame = 0.170f;
+          _elaspsedTimeDeath = 0.f,
+          _timeToChangeFrame = 0.170f;
 
-    
-    
+    int _posSpriteDeathAnimation = 1; // Position du sprite pour l'animation de mort
+    sf::Vector2i _posSpriteAnimation; // Position du sprite pour l'animation
 
-   
-    int _posSpriteDeathAnimation = 1;
-    sf::Vector2i _posSpriteAnimation;
-    
-    sf::Texture _textureAtlas;
-    sf::Sprite _deathSprite;
+    sf::Texture _textureAtlas; // Texture pour l'atlas du personnage
+    sf::Sprite _deathSprite;   // Sprite pour l'animation de mort
 
-    sf::Vector2f _spawnPos;
-    sf::FloatRect _collisionZone;
+    sf::Vector2f _spawnPos;       // Position de réapparition
+    sf::FloatRect _collisionZone; // Zone de collision
 
-    void move(sf::Vector2f movement);
-    
-    int quantiteBombe = 2,
-        bouclier = 0,
-        _lives = 3;
+    void move(sf::Vector2f movement); // Méthode pour déplacer le personnage
 
+    int quantiteBombe = 2, // Quantité de bombes initiale
+        bouclier = 0,      // Bouclier
+        _lives = 3;        // Nombre de vies
 };
 
-
-
-#endif //BOMBERMAN_PERSONNAGE_H
+#endif

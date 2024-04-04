@@ -10,6 +10,7 @@ class Ray
        
         void updateRect(int posOnTexture);
         void updatePosition(sf::Sprite);
+
         bool contains(sf::Vector2f);
 
         bool getVisibility();

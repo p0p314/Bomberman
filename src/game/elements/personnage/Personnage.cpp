@@ -7,8 +7,9 @@ Personnage::Personnage(Player * player, Monde* level,skin apparence) : _player(p
     if(_skin == skin::titi)
     {
         _name = "titi";
-        if(!_texture.loadFromFile("assets/bomber.png")) perror("texture bomber 'titi'");
-        
+        if (!_texture.loadFromFile("assets/Bomberman.png"))
+            perror("texture bomber 'titi'");
+
         _sprite.setTexture(_texture);
         _sprite.setTextureRect(sf::IntRect(_posSpriteAnimation.x*_spriteWidth,_posSpriteAnimation.y*_spriteHeight,
                                               _spriteWidth,_spriteHeight));
@@ -149,8 +150,6 @@ void Personnage::Update(float dt, int dirFromPacket)
     _elapsedTime += dt;
     _elaspsedTimeDeath += dt;
 
-  
-    
     if(dirFromPacket == 0){
         if(getBombe().plant(_level))
         {

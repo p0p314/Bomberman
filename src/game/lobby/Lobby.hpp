@@ -9,10 +9,10 @@ class Player;
 
 class Lobby 
 {
-    public : 
-        Lobby(sf::RenderWindow * window, Player * player, sf::Uint8 &numberOfPlayer);
-        bool Run(),
-             getExitToMenu();
+    public :
+        Lobby(sf::RenderWindow *window, Player *player, sf::Uint8 &numberOfPlayer); // Création des cercles d'attente
+        bool Run(),                                                                 // Lance la fonction HandleEvent pour surveiller les évènements et dessine les points tant que il n'y a pas de joueurs.
+            getExitToMenu();
 
     private : 
         Player * _player;
@@ -40,7 +40,6 @@ class Lobby
             _maxWidthLoadingBar = (_radiusLoadingPoint*2*_numberOfLoadingPoints) + (_numberOfLoadingPoints * _spacementBetweenPoints) ;
     
         void Draw();
-        void Update(int dt);
-        void HandleEvent(sf::Event);
-       
+        void Update(int dt);         // Attente du deuxième joueur. Envoi des paquets du nombre de joueur présent pour que le jeu se lance.
+        void HandleEvent(sf::Event); // Gestion de la fermeture du jeu et revenir au menu.
 };
