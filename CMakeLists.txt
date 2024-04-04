@@ -33,7 +33,7 @@ add_executable(Server src/game/server/Server.cpp
                       src/game/player/Debouncer.cpp
                      )
 
-target_link_libraries(Bomberman PRIVATE sfml-graphics sfml-window sfml-network sfml-system )
+target_link_libraries(Bomberman PRIVATE sfml-graphics sfml-window sfml-network sfml-system sfml-audio )
 target_link_libraries(Server PRIVATE  sfml-graphics sfml-network)
 
 target_compile_features(Bomberman PRIVATE cxx_std_17)
