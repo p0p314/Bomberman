@@ -81,6 +81,7 @@ int Partie::Run() // Méthode appelé par le menu lorsque le joueur rejoint une 
     if (!music.openFromFile("assets/music/cruising-down-8bit-lane-159615.ogg"))
         return -1;
     music.setVolume(30);
+    music.setLoop(true);
     music.play();
 
     if (!_exit && _characterList.size() == _numberOfPlayer)

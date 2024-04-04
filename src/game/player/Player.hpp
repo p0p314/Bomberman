@@ -11,7 +11,7 @@ class Player
     public : 
 
         Player();
-        Player(sf::TcpSocket * clientSocket, sf::IpAddress);
+        Player(sf::TcpSocket *clientSocket, sf::IpAddress); // Constructeur des Joueurs si ce joueur est un créateur de partie son constructeur est différent
         ~Player();
         
         sf::IpAddress getPublicIP();
@@ -27,11 +27,15 @@ class Player
 
         sf::TcpSocket * getSocket() ;
         void setSocket(sf::TcpSocket*);
-        
+
+        // Fonction pour rejoindre une partie
         bool joinAGame();
         bool signalArrival(sf::Uint8 playerType, sf::Uint8 maxPlayers = 0);
-        void listReady();
-        void action(sf::Uint8 typeOfAction, float dt);
+
+        void listReady(); // Fonction vérifiant la liste de joueurs prêts à jouer
+
+        void action(sf::Uint8 typeOfAction, float dt); // Fonction envoyant les paquets d'actions au serveur
+
         void exitGame(bool forcedExit);
 
         Debouncer & getDebouncer();

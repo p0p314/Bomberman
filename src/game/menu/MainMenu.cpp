@@ -22,7 +22,6 @@ MainMenu::MainMenu(float width, float height) {
     MenuI.setTexture(Menu);
 
     // Bouton Rejoindre partie
-
     mainMenu[0].setFont(font);
     mainMenu[0].setFillColor(Color::White);
     mainMenu[0].setString("Rejoindre une Partie");

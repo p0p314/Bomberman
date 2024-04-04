@@ -2,7 +2,7 @@
 #include <iostream>
 Server::Server() : _selector()
 {
-    if (_listener.listen(2000, sf::IpAddress::getLocalAddress()) != sf::Socket::Done)
+    if (_listener.listen(2000, sf::IpAddress("127.0.0.1")) != sf::Socket::Done)
     {
         std::cout << "Impossible de creer le serveur" <<std::endl;
         exit(1);

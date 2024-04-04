@@ -14,10 +14,9 @@ class Element
     
         sf::Vector2f getPosition();
         void setPosition(int x, int y );
-        void setPosition(sf::Vector2f nouvellePosition);
-        void deplacer(sf::Vector2f nouvellePosition);
-    
-    
+        void setPosition(sf::Vector2f nouvellePosition); // Changer la position du Sprite
+        void deplacer(sf::Vector2f nouvellePosition);    // Déplacer l'élément
+
         sf::Sprite&  getSprite();
         sf::Texture& getTexture();
     

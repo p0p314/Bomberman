@@ -1,0 +1,47 @@
+
+# A propos
+
+    Ce jeu est développé en C++, ce projet a pour but académique.
+    Ce jeu a été testé sur un serveur à distance. Pour faciliter les tests nous avons décidé
+    de fournir une version locale qui fonctionne comme la version qui se connecte sur un PC à distance.
+
+# Pré-requis
+
+    Ce jeu nécessite la librairie SFML pour son bon fonctionnement
+    Voici le paquet:
+    "sudo apt-get install libsfml-dev" sur Ubuntu 
+
+# Installation
+
+    Pour compiler le programme il vous faudra exécuter la commande suivante dans l'arborescence Bomberman/  "make compile2"
+    Cette première commande compile le code du Serveur ce serveur est indispensable pour le bon fonctionnement du jeu.
+
+    Pour compiler les élèments de jeu il vous faudra exécuter la commande suivante dans l'arborescence Bomberman/ "make"
+    Cette commande compile le jeu
+
+# Lancement
+
+* Compiler
+
+    Pour lancer le jeu il vous faudra exécuter la commande suivante "./Serveur"
+    Cette commande lancera un Serveur.
+
+    Veuillez ouvrir un nouveau terminal. 
+    Pour lancer le jeu il vous faudra ensuite exécuter la commande suivante "./app" Le jeu se lancera.
+
+    Pour notre démonstration nous avons adopté le code en local.
+
+    Il faut donc lancer un nouveau terminal pour initialiser le deuxième joeuur "./app". Le jeu se lancera.
+
+# Jouer
+Attention ces étapes se font dans cette ordre
+* Créer la partie
+    Il vous suffit de simplement choisir Créer la partie grâce aux flèches directionnelles de votre clavier et appuyer sur entrée, une fenêtre d'attente s'activera
+
+* Rejoindre une partie
+    Il vous suffit de simplement choisir Rejoindre une partie à l'aide des flèches directionnelles de votre clavier et appuyer sur entrée
+
+
+# Créateurs
+
+Toz Ata - Popille Cédric maintient et vous présente ce projet

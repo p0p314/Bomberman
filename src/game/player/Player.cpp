@@ -48,7 +48,7 @@ void Player::setSocket(sf::TcpSocket * socket)
 {
     _client = socket;
 }
-
+// Fonction Réception de packet
 void Player::getPacket()
 {
     sf::Packet packet;
@@ -63,11 +63,11 @@ void Player::getPacket()
         _dirFromPacket = 10;
     }
 }
-
+// Fonction pour qu'un joueur rejoigne une partie
 bool Player::joinAGame()
 {
         _client->setBlocking(true);
-        auto status = _client->connect(sf::IpAddress("176.143.129.142"), 2000,sf::Time(sf::seconds(2)));
+        auto status = _client->connect(sf::IpAddress("127.0.0.1"), 2000, sf::Time(sf::seconds(2))); // La partie est en local
         if( status == sf::Socket::Done)
         {  
             std::cout << "player : connexion reussi" <<  std::endl;
